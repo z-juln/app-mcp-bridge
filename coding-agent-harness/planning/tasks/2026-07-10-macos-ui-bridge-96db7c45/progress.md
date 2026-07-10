@@ -4,9 +4,9 @@
 
 ## 当前阶段
 
-- 阶段：本地 HTTP 服务与管理命令。
-- 最近完成：SRV-01 已实现并通过真实端口、鉴权和进程生命周期冒烟。
-- 下一步：提交 SRV-01，随后接入官方 MCP Swift SDK。
+- 阶段：MCP 与 Agent 接入。
+- 最近完成：MCP-01 stdio 已实现并通过真实客户端协议往返。
+- 下一步：提交 MCP-01，随后制作通用 Skill 和 Cursor/WorkBuddy 接入说明。
 
 ## 进度记录
 
@@ -59,6 +59,13 @@
 - 验证：后台启动后 `/health` 返回 ok；无令牌访问应用接口返回 401；正确令牌返回 72 个应用和权限状态；start/status/stop 生命周期全部通过。
 - 下一步：添加 MCP stdio 与 Streamable HTTP 映射。
 - 证据：`command:TARGET:Sources/UIBridgeServer:HTTP auth and daemon lifecycle smoke passed`
+
+### 2026-07-10 - MCP-01 stdio 接入
+
+- 做了什么：接入官方 MCP Swift SDK，增加 `mcp` 命令，并提供权限、运行应用、指定进程窗口三个通用工具。
+- 验证：完整构建、协议自检、核心真实截图自检通过；真实 stdio 客户端完成初始化、工具列表和工具调用，识别 3 个工具并返回 70 个当前应用。
+- 下一步：制作仓库内通用 Skill、Cursor/WorkBuddy 配置示例和一键自测脚本。
+- 证据：`command:TARGET:Sources/UIBridgeMCP:real stdio initialize/list/call smoke passed`
 
 ## 残余
 

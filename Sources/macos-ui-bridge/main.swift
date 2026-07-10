@@ -1,10 +1,11 @@
 import Foundation
 import UIBridgeMacCore
+import UIBridgeMCP
 import UIBridgeServer
 
 @main
 enum UIBridgeCommand {
-    static func main() throws {
+    static func main() async throws {
         let arguments = Array(CommandLine.arguments.dropFirst())
         let command = arguments.first ?? "help"
         let tokenStore = TokenStore()
@@ -24,7 +25,11 @@ enum UIBridgeCommand {
             let server = HTTPServer(port: port, token: token)
             try server.start()
             print("macos-ui-bridge listening on http://127.0.0.1:\(port)")
-            RunLoop.current.run()
+            while !Task.isCancelled {
+                try await Task.sleep(for: .seconds(3_600))
+            }
+        case "mcp":
+            try await MCPBridge.runStdio()
         case "start":
             let port = parsePort(arguments) ?? 8765
             let state = ServiceStateStore()
@@ -56,7 +61,7 @@ enum UIBridgeCommand {
                 print("not running")
             }
         default:
-            print("macos-ui-bridge <start|stop|serve|status|permissions|token|version>")
+            print("macos-ui-bridge <start|stop|serve|mcp|status|permissions|token|version>")
         }
     }
 

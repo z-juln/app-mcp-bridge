@@ -9,7 +9,11 @@ let package = Package(
         .library(name: "UIBridgeProtocol", targets: ["UIBridgeProtocol"]),
         .library(name: "UIBridgeMacCore", targets: ["UIBridgeMacCore"]),
         .library(name: "UIBridgeServer", targets: ["UIBridgeServer"]),
+        .library(name: "UIBridgeMCP", targets: ["UIBridgeMCP"]),
         .executable(name: "macos-ui-bridge", targets: ["macos-ui-bridge"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.12.1"),
     ],
     targets: [
         .target(name: "UIBridgeProtocol"),
@@ -21,9 +25,17 @@ let package = Package(
             name: "UIBridgeServer",
             dependencies: ["UIBridgeProtocol", "UIBridgeMacCore"]
         ),
+        .target(
+            name: "UIBridgeMCP",
+            dependencies: [
+                "UIBridgeProtocol",
+                "UIBridgeMacCore",
+                .product(name: "MCP", package: "swift-sdk"),
+            ]
+        ),
         .executableTarget(
             name: "macos-ui-bridge",
-            dependencies: ["UIBridgeProtocol", "UIBridgeMacCore", "UIBridgeServer"]
+            dependencies: ["UIBridgeProtocol", "UIBridgeMacCore", "UIBridgeServer", "UIBridgeMCP"]
         ),
         .executableTarget(
             name: "protocol-self-test",
