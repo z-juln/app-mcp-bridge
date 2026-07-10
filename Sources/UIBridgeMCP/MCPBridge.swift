@@ -44,7 +44,9 @@ public enum MCPBridge {
             do {
                 switch params.name {
                 case "permissions_get":
-                    return try success(PermissionInspector.current())
+                    let status = PermissionInspector.current()
+                    await PermissionGuidance.presentIfNeeded(for: status)
+                    return try success(status)
                 case "apps_list":
                     return try success(AppDiscovery.listRunningApplications())
                 case "windows_list":

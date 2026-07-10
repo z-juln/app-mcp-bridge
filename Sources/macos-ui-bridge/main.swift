@@ -15,7 +15,8 @@ enum UIBridgeCommand {
             print("macos-ui-bridge 0.1.0-dev")
         case "permissions":
             let status = PermissionInspector.current()
-            print("accessibility=\(status.accessibilityTrusted)")
+            PermissionGuidance.presentIfNeeded(for: status)
+            print("accessibility=\(status.accessibilityTrusted) screenCapture=\(status.screenCaptureAllowed == true)")
         case "token":
             let token = arguments.contains("--rotate") ? try tokenStore.rotate() : try tokenStore.loadOrCreate()
             print(token)

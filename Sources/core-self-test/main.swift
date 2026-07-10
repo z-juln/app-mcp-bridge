@@ -24,6 +24,15 @@ do {
     try expect(windows.allSatisfy { $0.bounds.size.width >= 0 && $0.bounds.size.height >= 0 }, "A window has invalid bounds")
 
     let permissions = PermissionInspector.current()
+    try expect(
+        PermissionGuidance.missingKinds(for: PermissionStatus(accessibilityTrusted: false, screenCaptureAllowed: false))
+            == ["辅助功能", "屏幕录制"],
+        "Permission guidance did not identify both missing permissions"
+    )
+    try expect(
+        PermissionGuidance.missingKinds(for: PermissionStatus(accessibilityTrusted: true, screenCaptureAllowed: true)).isEmpty,
+        "Permission guidance reported missing permissions for an authorized process"
+    )
     var elementCount = 0
     var quality = "not-tested"
     if permissions.accessibilityTrusted, let frontmost = applications.first(where: \.isFrontmost) {

@@ -74,6 +74,14 @@
 - 下一步：开放快照和动作 MCP/HTTP 接口，再使用代表应用做端到端回归。
 - 证据：`command:TARGET:skills/macos-ui-control:validator and real MCP self-test passed`
 
+### 2026-07-10 - 权限阻塞原生引导
+
+- 做了什么：权限检查现在同时识别辅助功能和屏幕录制；缺失时由服务弹出原生提示，可直接前往对应系统设置，并在单次运行内抑制重复提醒；Skill 改为优先依赖此流程。
+- 验证：完整构建、协议自检、核心真实截图自检、Skill 校验、真实 MCP 自测和 Harness 检查通过；缺失权限组合与全授权分支均有自动断言。
+- 未覆盖：当前执行环境两项权限均已授权，未强行撤销用户权限验证实际弹窗外观；首次未授权状态需人工确认一次。
+- 下一步：开放快照和动作 MCP/HTTP 接口，再使用代表应用做端到端回归。
+- 证据：`command:TARGET:Sources/UIBridgeMacCore/PermissionGuidance.swift:permission decision and full regression passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，App Bundle/系统权限测试暂不可执行；纯 Swift 核心可继续。

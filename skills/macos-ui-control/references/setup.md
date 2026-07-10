@@ -40,7 +40,7 @@ The client must launch one process per MCP connection. Do not run the `mcp` comm
 
 ## macOS permissions
 
-Grant Accessibility and Screen Recording to the actual host process that launches the server, such as Cursor or WorkBuddy, under System Settings → Privacy & Security. Reopen that host after changing permissions.
+Call `permissions_get`. When access is missing, the bridge opens a native dialog; choose **前往设置**, grant Accessibility and Screen Recording to the actual host process that launches the server, such as Cursor or WorkBuddy, then reopen that host.
 
 Call `permissions_get` to confirm the state. Discovery can work with limited permissions, but UI reading and screenshots require the corresponding grants.
 

@@ -65,3 +65,6 @@ swift run macos-ui-bridge stop
 ```
 
 详细权限和排错说明见 `skills/macos-ui-control/references/setup.md`。
+
+首次检查发现缺少辅助功能或屏幕录制权限时，服务会主动弹窗。选择“前往设置”即可
+打开对应的系统设置页；同一次运行不会重复弹出相同提醒。

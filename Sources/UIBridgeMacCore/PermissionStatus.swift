@@ -1,4 +1,5 @@
 import ApplicationServices
+import CoreGraphics
 import Foundation
 
 public struct PermissionStatus: Codable, Hashable, Sendable {
@@ -13,6 +14,9 @@ public struct PermissionStatus: Codable, Hashable, Sendable {
 
 public enum PermissionInspector {
     public static func current() -> PermissionStatus {
-        PermissionStatus(accessibilityTrusted: AXIsProcessTrusted())
+        PermissionStatus(
+            accessibilityTrusted: AXIsProcessTrusted(),
+            screenCaptureAllowed: CGPreflightScreenCaptureAccess()
+        )
     }
 }

@@ -11,7 +11,7 @@ Use the bridge as a last-mile UI tool for any macOS app. Prefer an app API, conn
 
 Require the `macos-ui-bridge` MCP server. If its tools are absent, read [references/setup.md](references/setup.md), guide the user through setup, and stop before attempting UI work.
 
-Start every task with `permissions_get`. If Accessibility is unavailable, explain which permission is missing and wait for the user to grant it. Never claim an action happened when permission or tool support is absent.
+Start every task with `permissions_get`. The bridge presents a native dialog with a direct System Settings button when a permission is missing. Tell the user to complete that dialog and wait for authorization. Never replace this flow with a long manual settings tutorial unless the dialog cannot open, and never claim an action happened when permission or tool support is absent.
 
 ## Work from live state
 
