@@ -23,3 +23,10 @@
 - Swift SDK 与当前 Xcode/macOS 工具链版本。
 - ScreenCaptureKit 单窗口截图在后台与跨 Space 的实际行为。
 - WorkBuddy 当前版本支持 MCP 还是仅支持 HTTP/Skill 命令。
+
+## 环境发现
+
+- Swift 6.3.3 编译器可用。
+- 当前 active developer directory 是 CommandLineTools，不是完整 Xcode。
+- `XCTest` 和独立 `Testing` 模块不可直接使用；引入 swift-testing 后链接仍缺少
+  `_TestingInterop`。为保持接力环境可运行，基础测试暂用项目内可执行自检。

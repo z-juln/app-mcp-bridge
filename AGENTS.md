@@ -66,7 +66,7 @@
 项目骨架建立前，以任务 `progress.md` 为准。骨架建立后必须维护以下稳定入口：
 
 - 构建：`swift build`
-- 测试：`swift test`
+- 基础自检：`swift run protocol-self-test`
 - 状态：`swift run macos-ui-bridge status`
 - Harness 检查：`npx --yes coding-agent-harness check --profile target-project .`
 
