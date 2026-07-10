@@ -1,4 +1,6 @@
 import AppKit
+import ApplicationServices
+import CoreGraphics
 import Foundation
 
 @MainActor
@@ -24,6 +26,7 @@ public enum PermissionGuidance {
 
         if alert.runModal() == .alertFirstButtonReturn,
            let url = settingsURL(for: missing[0]) {
+            registerWithSystem(for: status)
             NSWorkspace.shared.open(url)
         }
     }
@@ -38,5 +41,15 @@ public enum PermissionGuidance {
     private static func settingsURL(for kind: String) -> URL? {
         let pane = kind == "辅助功能" ? "Privacy_Accessibility" : "Privacy_ScreenCapture"
         return URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)")
+    }
+
+    private static func registerWithSystem(for status: PermissionStatus) {
+        if !status.accessibilityTrusted {
+            let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
+            _ = AXIsProcessTrustedWithOptions(options)
+        }
+        if status.screenCaptureAllowed == false {
+            _ = CGRequestScreenCaptureAccess()
+        }
     }
 }

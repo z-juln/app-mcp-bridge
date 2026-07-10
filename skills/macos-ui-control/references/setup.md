@@ -2,10 +2,11 @@
 
 ## Build
 
-From the repository root:
+From the repository root, build and install the App:
 
 ```bash
-swift build
+./scripts/build-app.sh
+./scripts/install-app.sh
 python3 skills/macos-ui-control/scripts/self_test.py
 ```
 
@@ -19,7 +20,7 @@ Add this server to the MCP configuration, replacing the project path if needed:
 {
   "mcpServers": {
     "macos-ui-bridge": {
-      "command": "/Users/juln/Desktop/workspace/macos-ui-bridge/.build/debug/macos-ui-bridge",
+      "command": "/Applications/macOS UI Bridge.app/Contents/MacOS/macos-ui-bridge",
       "args": ["mcp"]
     }
   }
@@ -32,7 +33,7 @@ Restart or reload MCP servers, then confirm that `permissions_get`, `apps_list`,
 
 Create a local stdio MCP server using the same command and argument shown above:
 
-- command: `/Users/juln/Desktop/workspace/macos-ui-bridge/.build/debug/macos-ui-bridge`
+- command: `/Applications/macOS UI Bridge.app/Contents/MacOS/macos-ui-bridge`
 - arguments: `mcp`
 - working directory: `/Users/juln/Desktop/workspace/macos-ui-bridge` when the client requests one
 

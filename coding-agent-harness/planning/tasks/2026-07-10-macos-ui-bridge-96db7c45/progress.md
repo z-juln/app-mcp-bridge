@@ -82,6 +82,13 @@
 - 下一步：开放快照和动作 MCP/HTTP 接口，再使用代表应用做端到端回归。
 - 证据：`command:TARGET:Sources/UIBridgeMacCore/PermissionGuidance.swift:permission decision and full regression passed`
 
+### 2026-07-10 - 最小可安装 macOS App
+
+- 做了什么：增加固定名称与标识的无界面 App 包装、正式构建和安装脚本；App 独立启动本地服务并以自身身份申请辅助功能与屏幕录制权限；客户端配置改为调用已安装 App 内的程序。
+- 验证：生产构建、配置文件和系统签名检查通过；App 已安装到 `/Applications`，系统识别固定标识；用户确认它已出现在辅助功能列表并启用；重新打开后进程保持运行且健康接口返回 ok；App 自检读取到两项权限均为 true。
+- 下一步：开放快照和动作 MCP/HTTP 接口，再使用代表应用做端到端回归。
+- 证据：`command:TARGET:scripts/build-app.sh:installed app launch, permissions and health passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，App Bundle/系统权限测试暂不可执行；纯 Swift 核心可继续。

@@ -7,7 +7,12 @@ import UIBridgeServer
 enum UIBridgeCommand {
     static func main() async throws {
         let arguments = Array(CommandLine.arguments.dropFirst())
-        let command = arguments.first ?? "help"
+        let executablePath = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL.path
+        let isBundledAppLaunch = arguments.isEmpty && (
+            Bundle.main.bundleIdentifier == "com.juln.macos-ui-bridge"
+                || executablePath.contains(".app/Contents/MacOS/")
+        )
+        let command = arguments.first ?? (isBundledAppLaunch ? "app" : "help")
         let tokenStore = TokenStore()
 
         switch command {
@@ -26,6 +31,15 @@ enum UIBridgeCommand {
             let server = HTTPServer(port: port, token: token)
             try server.start()
             print("macos-ui-bridge listening on http://127.0.0.1:\(port)")
+            while !Task.isCancelled {
+                try await Task.sleep(for: .seconds(3_600))
+            }
+        case "app":
+            let token = try tokenStore.loadOrCreate()
+            let server = HTTPServer(port: 8765, token: token)
+            try server.start()
+            let status = PermissionInspector.current()
+            PermissionGuidance.presentIfNeeded(for: status)
             while !Task.isCancelled {
                 try await Task.sleep(for: .seconds(3_600))
             }

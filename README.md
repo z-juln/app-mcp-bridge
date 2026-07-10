@@ -12,6 +12,22 @@ swift run core-self-test
 python3 skills/macos-ui-control/scripts/self_test.py
 ```
 
+## 构建并安装 App
+
+```bash
+./scripts/build-app.sh
+./scripts/install-app.sh
+```
+
+安装位置为 `/Applications/macOS UI Bridge.app`。首次打开会提示缺少的系统权限；
+选择“前往设置”后，App 会以自己的名称登记到对应权限列表。
+
+App 没有主窗口，启动后在后台提供服务。可用下面的命令确认：
+
+```bash
+curl http://127.0.0.1:8765/health
+```
+
 ## 启动服务
 
 ```bash
@@ -57,7 +73,7 @@ swift run macos-ui-bridge stop
 {
   "mcpServers": {
     "macos-ui-bridge": {
-      "command": "/Users/juln/Desktop/workspace/macos-ui-bridge/.build/debug/macos-ui-bridge",
+      "command": "/Applications/macOS UI Bridge.app/Contents/MacOS/macos-ui-bridge",
       "args": ["mcp"]
     }
   }

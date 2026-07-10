@@ -10,7 +10,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-BINARY = ROOT / ".build" / "debug" / "macos-ui-bridge"
+INSTALLED_BINARY = Path("/Applications/macOS UI Bridge.app/Contents/MacOS/macos-ui-bridge")
+BINARY = INSTALLED_BINARY if INSTALLED_BINARY.is_file() else ROOT / ".build" / "debug" / "macos-ui-bridge"
 
 
 def main() -> int:
