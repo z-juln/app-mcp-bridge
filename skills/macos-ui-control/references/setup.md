@@ -48,6 +48,15 @@ If the client does not support local HTTP MCP, use stdio:
 
 Restart or reload MCP servers, then confirm that all nine tools are visible, including `snapshot_get`, `action_run`, and `emergency_stop`.
 
+For the local Cursor and WorkBuddy installations, configure both without printing the token:
+
+```bash
+./scripts/configure-mcp-clients.sh
+```
+
+The script preserves every existing server and creates a backup beside each changed file.
+WorkBuddy's own **自定义连接器 → 配置 MCP** screen reports the same file at `~/.workbuddy/mcp.json`.
+
 ## WorkBuddy and other MCP clients
 
 Prefer the same authenticated URL when supported. Otherwise create a local stdio MCP server:
@@ -60,7 +69,9 @@ The client must launch one process per MCP connection. Do not run the `mcp` comm
 
 ## macOS permissions
 
-Call `permissions_get`. When access is missing, the bridge opens a native dialog; choose **前往设置**, grant Accessibility and Screen Recording to the actual host process that launches the server, such as Cursor or WorkBuddy, then reopen that host.
+When using the recommended local endpoint, grant Accessibility and Screen Recording only to **macOS UI Bridge.app**. Cursor and WorkBuddy do not need those permissions. Call `permissions_get`; when access is missing, the Bridge App opens its native guidance.
+
+Only the fallback stdio mode runs automation inside the client-launched process. In that mode, the launching client may also need macOS permissions, so prefer the local endpoint.
 
 Call `permissions_get` to confirm the state. Discovery can work with limited permissions, but UI reading and screenshots require the corresponding grants.
 
@@ -69,4 +80,4 @@ Call `permissions_get` to confirm the state. Discovery can work with limited per
 - No tools: verify that `swift build` succeeded and the configured executable path exists.
 - Process exits: run the self-test and inspect its stderr output.
 - Empty windows: confirm the app is running and retry with the current pid from `apps_list`.
-- Permission remains false: grant access to the client that launches MCP, then fully restart it.
+- Permission remains false: open the Bridge menu, run **检查系统权限**, and restart the Bridge after changing macOS settings.

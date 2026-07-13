@@ -231,6 +231,14 @@
 - 下一步：继续最终任务审查与剩余功能收口。
 - 证据：`human-confirmation:TARGET:/Applications/macOS UI Bridge.app:bundle icon accepted`
 
+### 2026-07-13 - Cursor 与 WorkBuddy 真实接入
+
+- 做了什么：增加保留原配置和私有备份的一键客户端配置脚本；通过 WorkBuddy 4.24.8 自定义连接器界面确认真实配置路径；Cursor 3.6.31 使用安装版直接启动方式，WorkBuddy 使用带令牌的本地地址。
+- 修复：本地地址此前复用同一个协议服务状态，WorkBuddy 重连返回“已经初始化”；改为每个请求使用独立协议处理实例，同时共享桌面运行状态。
+- 验证：Cursor 日志实时返回 connected，并启动安装版 MCP 进程；本地地址连续两轮初始化和工具列表均成功、每轮返回 9 个工具；WorkBuddy 日志确认 streamable HTTP 连接成功并识别全部 9 个 Bridge 工具，重启后的任务运行环境也包含这些工具。
+- 下一步：通过客户端完成一个安全、可验证的完整桌面任务。
+- 证据：`command:TARGET:Sources/UIBridgeServer/MCPHTTPHandler.swift:Cursor connected and WorkBuddy reconnect exposes nine tools`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。
