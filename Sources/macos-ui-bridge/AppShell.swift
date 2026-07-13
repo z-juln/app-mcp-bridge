@@ -42,11 +42,17 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func makeMenu() -> NSMenu {
         let menu = NSMenu(title: "macOS UI Bridge")
+        menu.autoenablesItems = false
         populateMenu(menu)
         return menu
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
+        populateMenu(menu)
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
         menu.removeAllItems()
         populateMenu(menu)
     }
@@ -69,10 +75,11 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(heading)
             for target in targets {
                 let active = NSMenuItem(title: "  正在操控 \(target.name)", action: nil, keyEquivalent: "")
-                active.isEnabled = false
+                active.isEnabled = true
                 active.image = NSImage(systemSymbolName: "cursorarrow.rays", accessibilityDescription: nil)
                 menu.addItem(active)
             }
+            menu.addItem(item(title: "清除操控记录", action: #selector(clearActivity)))
         }
         menu.addItem(.separator())
         menu.addItem(item(title: "检查系统权限", action: #selector(checkPermissions)))
@@ -97,6 +104,10 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
         """
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(config, forType: .string)
+    }
+
+    @objc private func clearActivity() {
+        overlayController.clearTargets()
     }
 
     @objc private func quitApp() {

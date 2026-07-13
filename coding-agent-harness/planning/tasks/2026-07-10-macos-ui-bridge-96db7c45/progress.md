@@ -284,6 +284,14 @@
 - 下一步：用户自然打开菜单确认最终外观；若仍不可见，需核对用户点击的是否为 Bridge 的重叠窗口图标。
 - 证据：`command:TARGET:/Applications/macOS UI Bridge.app:AXExtrasMenuBar contains active Finder target after snapshot`
 
+### 2026-07-13 - 调试期操控记录常驻
+
+- 用户要求：调试期间取消 90 秒过期，避免为了截图抢时间。
+- 做了什么：操控记录改为一直保留并跨 App 重启恢复；菜单目标项使用正常亮色显示；增加“清除操控记录”，只在用户手动点击时清空；菜单每次即将打开时都会直接读取记录重建，不再依赖后台通知是否及时送达。
+- 验证：当前访达记录已持久保存，安装版与服务已覆盖重启；debug/release 构建、协议自检、签名和健康检查通过。自动辅助功能只能读取关闭状态的菜单，无法替用户按开状态做最终外观确认，因此不再反复尝试该路线。
+- 下一步：用户任意时间打开 Bridge 菜单确认“正在操控 访达”和“清除操控记录”；调试完成后再决定是否恢复自动过期。
+- 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:persistent menu rebuilds on menuWillOpen`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

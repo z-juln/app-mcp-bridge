@@ -67,6 +67,10 @@ public enum AutomationActivityCenter {
         return try? JSONDecoder().decode(AutomationActivityRecord.self, from: data)
     }
 
+    public static func clear() {
+        try? FileManager.default.removeItem(at: stateURL)
+    }
+
     private static var stateURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/macos-ui-bridge", isDirectory: true)
