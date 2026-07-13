@@ -159,6 +159,14 @@
 - 下一步：用户确认后重新提交最终审查。
 - 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:transparent adaptive status icon build passed`
 
+### 2026-07-13 - 重装权限身份稳定
+
+- 做了什么：开发版签名改用固定程序身份，避免每次代码变化后系统把同一路径、同一名称的 App 当作新程序，导致设置开关仍开启但运行进程实际无权限。
+- 验证：构建脚本会检查生成 App 的固定身份；安装前确认旧版正在运行的服务进程实际返回两项权限 false，而同一程序从终端查询会受宿主权限影响返回 true，定位到此前验证方式的盲点。
+- 迁移说明：旧签名升级到固定身份时需要重新开关两项授权一次；此后重装应保留权限。
+- 下一步：安装新版、重新授权一次，并连续覆盖安装验证权限保持。
+- 证据：`command:TARGET:scripts/build-app.sh:stable designated requirement asserted`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。
