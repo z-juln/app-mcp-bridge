@@ -21,11 +21,13 @@ final class ControlOverlayController: NSObject {
         var cursorPanel: NSPanel?
         var hideBadge: Timer?
         var hideCursor: Timer?
+        var expireTarget: Timer?
     }
 
     private var targets: [Int32: TargetState] = [:]
     private var pollTimer: Timer?
     private var lastEventID: String?
+    var onTargetsChanged: (() -> Void)?
 
     override init() {
         super.init()
@@ -76,6 +78,8 @@ final class ControlOverlayController: NSObject {
               record.eventID != lastEventID else { return }
         lastEventID = record.eventID
         guard retainTarget(record) else { return }
+        scheduleExpiration(for: record)
+        onTargetsChanged?()
         if record.createdAt > Date().addingTimeInterval(-Self.visualFeedbackFreshness) {
             display(record)
         }
@@ -99,6 +103,21 @@ final class ControlOverlayController: NSObject {
         state.lastSeen = max(state.lastSeen, record.createdAt)
         targets[record.pid] = state
         return true
+    }
+
+    private func scheduleExpiration(for record: AutomationActivityRecord) {
+        guard var state = targets[record.pid] else { return }
+        state.expireTarget?.invalidate()
+        let timer = Timer(
+            timeInterval: max(0.1, record.createdAt.addingTimeInterval(Self.targetRetention).timeIntervalSinceNow),
+            target: self,
+            selector: #selector(expireTargetTimer(_:)),
+            userInfo: NSNumber(value: record.pid),
+            repeats: false
+        )
+        state.expireTarget = timer
+        targets[record.pid] = state
+        RunLoop.main.add(timer, forMode: .common)
     }
 
     private func display(_ record: AutomationActivityRecord) {
@@ -181,6 +200,16 @@ final class ControlOverlayController: NSObject {
     @objc private func hideCursorTimer(_ timer: Timer) {
         guard let pid = (timer.userInfo as? NSNumber)?.int32Value else { return }
         targets[pid]?.cursorPanel?.orderOut(nil)
+    }
+
+    @objc private func expireTargetTimer(_ timer: Timer) {
+        guard let pid = (timer.userInfo as? NSNumber)?.int32Value,
+              let state = targets[pid],
+              state.lastSeen <= Date().addingTimeInterval(-Self.targetRetention) else { return }
+        state.badgePanel.orderOut(nil)
+        state.cursorPanel?.orderOut(nil)
+        targets.removeValue(forKey: pid)
+        onTargetsChanged?()
     }
 
     private static func makeBadgePanel() -> NSPanel {

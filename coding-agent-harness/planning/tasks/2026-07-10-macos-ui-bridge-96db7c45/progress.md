@@ -275,6 +275,15 @@
 - 下一步：用户在一次 WorkBuddy 读取结束后的 90 秒内打开 Bridge 菜单，确认显示“正在操控 访达”。
 - 证据：`command:TARGET:Sources/macos-ui-bridge/ControlOverlayController.swift:delayed activity survives app restart and health remains ok`
 
+### 2026-07-13 - 菜单收到事件后主动刷新
+
+- 用户复测：WorkBuddy 在 5 秒内完成访达只读任务，状态记录正确写入“访达”，但打开菜单仍没有目标项，排除任务过慢和记录过期。
+- 根因：已恢复的目标只存在于控制器中，状态栏菜单仍依赖系统在打开菜单时回调刷新；该回调在实际状态栏入口没有可靠执行，导致菜单继续显示启动时的旧内容。
+- 做了什么：控制器收到新目标后立即通知 App 重建现有菜单，不再依赖点击时刷新；每个目标同时注册 90 秒到期刷新，避免菜单项无限残留。
+- 验证：安装版后台读取访达后，通过 macOS 辅助功能接口直接读取当前 Bridge 状态栏菜单，明确包含“正在操控”和“正在操控 访达”；协议自检、debug/release 构建、覆盖安装和健康检查通过。临时检查脚本已删除。
+- 下一步：用户自然打开菜单确认最终外观；若仍不可见，需核对用户点击的是否为 Bridge 的重叠窗口图标。
+- 证据：`command:TARGET:/Applications/macOS UI Bridge.app:AXExtrasMenuBar contains active Finder target after snapshot`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

@@ -25,6 +25,9 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let menu = makeMenu()
         menu.delegate = self
         statusItem.menu = menu
+        overlayController.onTargetsChanged = { [weak self] in
+            self?.refreshMenu()
+        }
         NSApplication.shared.delegate = self
     }
 
@@ -44,6 +47,12 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
+        populateMenu(menu)
+    }
+
+    private func refreshMenu() {
+        guard let menu = statusItem.menu else { return }
         menu.removeAllItems()
         populateMenu(menu)
     }
