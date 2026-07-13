@@ -195,6 +195,13 @@
 - 下一步：增加 App 启动时自动校验；全授权时静默，缺权时才引导。
 - 证据：`command:TARGET:/v1/permissions:installed app reports both permissions true`
 
+### 2026-07-13 - 启动时权限校验
+
+- 做了什么：App 事件循环开始后自动执行与菜单相同的权限校验；已完整授权时直接返回且不显示任何内容，缺权时才进入已去重的系统申请与设置引导。
+- 验证：使用当前两项已授权状态完成覆盖安装和重启；安装版服务实时返回两项 true，系统读取 App 窗口为空，未出现权限弹窗；授权提示标记已自动清除。
+- 下一步：重新提交最终任务审查。
+- 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:authorized reinstall starts silently with both permissions true`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

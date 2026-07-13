@@ -24,6 +24,9 @@ final class AppShell: NSObject {
     }
 
     func run() {
+        DispatchQueue.main.async {
+            PermissionGuidance.presentIfNeeded(for: PermissionInspector.current())
+        }
         NSApplication.shared.run()
     }
 
