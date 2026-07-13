@@ -89,6 +89,11 @@ public enum MCPBridge {
                     description: "Stop all further actions in this MCP session and discard live snapshots.",
                     inputSchema: .object(["type": .string("object")])
                 ),
+                Tool(
+                    name: "diagnostics_get",
+                    description: "Return permission and service readiness without private UI content.",
+                    inputSchema: .object(["type": .string("object")])
+                ),
             ])
         }
 
@@ -154,6 +159,14 @@ public enum MCPBridge {
                 case "emergency_stop":
                     runtime.emergencyStop()
                     return try success(["status": "stopped", "resume": "start a new MCP connection"])
+                case "diagnostics_get":
+                    let permissions = PermissionInspector.current()
+                    return try success(Diagnostics(
+                        accessibilityReady: permissions.accessibilityTrusted,
+                        screenCaptureReady: permissions.screenCaptureAllowed == true,
+                        runningApplicationCount: AppDiscovery.listRunningApplications().count,
+                        version: "0.1.0"
+                    ))
                 default:
                     return failure("unknown tool: \(params.name)")
                 }
@@ -255,4 +268,11 @@ public enum MCPBridge {
     private static func failure(_ message: String) -> CallTool.Result {
         .init(content: [.text(text: message, annotations: nil, _meta: nil)], isError: true)
     }
+}
+
+private struct Diagnostics: Encodable {
+    let accessibilityReady: Bool
+    let screenCaptureReady: Bool
+    let runningApplicationCount: Int
+    let version: String
 }

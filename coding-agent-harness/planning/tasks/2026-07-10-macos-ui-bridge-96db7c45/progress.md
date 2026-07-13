@@ -117,6 +117,13 @@
 - 下一步：补充诊断接口和 HTTP/MCP 契约自测；真实桌面回归等用户空闲时统一执行。
 - 证据：`command:TARGET:Sources/UIBridgeMacCore/AutomationRuntime.swift:headless query and emergency stop contract passed`
 
+### 2026-07-13 - 无内容诊断
+
+- 做了什么：MCP/HTTP 增加诊断入口，只返回权限、版本和运行应用数量，不返回窗口标题、控件文本或截图。
+- 验证：无界面 MCP 与带鉴权 HTTP 实测均返回两项权限 ready 和正确版本；构建通过，未操作用户桌面。
+- 下一步：实现 Streamable HTTP MCP 入口与收口文档；桌面动作回归保持暂停。
+- 证据：`command:TARGET:Sources/UIBridgeMCP:headless diagnostics MCP and HTTP smoke passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

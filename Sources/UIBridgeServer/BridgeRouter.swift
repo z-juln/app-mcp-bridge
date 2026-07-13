@@ -29,6 +29,14 @@ struct BridgeRouter: Sendable {
             return encode(AppDiscovery.listRunningApplications())
         case ("GET", "/v1/permissions"):
             return encode(PermissionInspector.current())
+        case ("GET", "/v1/diagnostics"):
+            let permissions = PermissionInspector.current()
+            return encode(HTTPDiagnostics(
+                accessibilityReady: permissions.accessibilityTrusted,
+                screenCaptureReady: permissions.screenCaptureAllowed == true,
+                runningApplicationCount: AppDiscovery.listRunningApplications().count,
+                version: "0.1.0"
+            ))
         case ("POST", "/v1/snapshots"):
             do {
                 let input = try decoder.decode(SnapshotInput.self, from: request.body)
@@ -137,4 +145,11 @@ private struct ElementFindInput: Decodable {
 
 private struct ScreenshotInput: Decodable {
     let handle: String
+}
+
+private struct HTTPDiagnostics: Encodable {
+    let accessibilityReady: Bool
+    let screenCaptureReady: Bool
+    let runningApplicationCount: Int
+    let version: String
 }
