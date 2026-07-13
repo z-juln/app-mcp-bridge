@@ -51,7 +51,7 @@ def main() -> int:
         server_name = initialized["result"]["serverInfo"]["name"]
         tool_names = [tool["name"] for tool in listed["result"]["tools"]]
         apps = json.loads(called["result"]["content"][0]["text"])
-        required = {"permissions_get", "apps_list", "windows_list", "snapshot_get", "action_run"}
+        required = {"permissions_get", "apps_list", "windows_list", "snapshot_get", "plan_check", "action_run"}
         if server_name != "macos-ui-bridge" or not required.issubset(tool_names) or not isinstance(apps, list):
             raise RuntimeError("MCP response did not match the expected bridge contract")
 
@@ -88,6 +88,28 @@ def main() -> int:
         target = snapshot["elements"][0]
         send(process, {
             "jsonrpc": "2.0", "id": request_id, "method": "tools/call",
+            "params": {"name": "plan_check", "arguments": {
+                "snapshot_id": snapshot["snapshotID"], "action": "coordinate_click",
+                "coordinate_x": 1, "coordinate_y": 1,
+            }},
+        })
+        visual_preview = json.loads(receive(process, request_id)["result"]["content"][0]["text"])
+        request_id += 1
+        if visual_preview.get("readiness") != "needs_screenshot":
+            raise RuntimeError("plan_check allowed a coordinate action without current screenshot evidence")
+        send(process, {
+            "jsonrpc": "2.0", "id": request_id, "method": "tools/call",
+            "params": {"name": "plan_check", "arguments": {
+                "snapshot_id": snapshot["snapshotID"], "element_handle": target["handle"],
+                "action": "press", "high_impact": True, "confirmed": False,
+            }},
+        })
+        preview = json.loads(receive(process, request_id)["result"]["content"][0]["text"])
+        request_id += 1
+        if preview.get("readiness") != "needs_confirmation":
+            raise RuntimeError("plan_check did not stop an unconfirmed high-impact action")
+        send(process, {
+            "jsonrpc": "2.0", "id": request_id, "method": "tools/call",
             "params": {"name": "action_run", "arguments": {
                 "snapshot_id": snapshot["snapshotID"], "element_handle": target["handle"],
                 "action": "press", "verification_kind": "element_present",
@@ -100,7 +122,7 @@ def main() -> int:
             raise RuntimeError("high-impact action did not stop for explicit confirmation")
         print(
             f"self-test passed: server={server_name} tools={','.join(tool_names)} "
-            f"apps={len(apps)} snapshot_elements={len(snapshot['elements'])} confirmation=protected"
+            f"apps={len(apps)} snapshot_elements={len(snapshot['elements'])} plan=checked confirmation=protected"
         )
         return 0
     except (KeyError, ValueError, RuntimeError) as error:

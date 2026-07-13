@@ -102,6 +102,93 @@ public final class AutomationRuntime: @unchecked Sendable {
         }.prefix(max(1, min(limit, 200))))
     }
 
+    public func checkPlan(
+        snapshotID: String,
+        elementHandle: String?,
+        action: ActionKind,
+        coordinate: UIBPoint? = nil,
+        delivery: DeliveryPreference = .background,
+        highImpact: Bool = false,
+        confirmed: Bool = false,
+        foregroundApproved: Bool = false
+    ) throws -> PlanCheckResult {
+        let snapshot = try snapshot(id: snapshotID)
+
+        if highImpact && !confirmed {
+            return PlanCheckResult(
+                snapshotID: snapshotID,
+                readiness: .needsConfirmation,
+                reason: "The proposed action is high impact and has not been explicitly confirmed.",
+                recommendations: ["Ask for confirmation immediately before executing this exact action."]
+            )
+        }
+        if delivery == .foreground && !foregroundApproved {
+            return PlanCheckResult(
+                snapshotID: snapshotID,
+                readiness: .needsForegroundApproval,
+                reason: "The proposed action would bring the target app forward.",
+                recommendations: ["Explain the focus change and obtain approval before execution."]
+            )
+        }
+
+        if action == .coordinateClick {
+            guard snapshot.screenshot != nil else {
+                return PlanCheckResult(
+                    snapshotID: snapshotID,
+                    readiness: .needsScreenshot,
+                    reason: "A coordinate click must be grounded in a screenshot from the same snapshot.",
+                    recommendations: ["Create a new snapshot with include_screenshot=true, inspect it, then derive fresh coordinates."]
+                )
+            }
+            guard let coordinate,
+                  coordinate.x >= 0, coordinate.y >= 0,
+                  coordinate.x <= snapshot.windowBounds.size.width,
+                  coordinate.y <= snapshot.windowBounds.size.height else {
+                return PlanCheckResult(
+                    snapshotID: snapshotID,
+                    readiness: .rejected,
+                    reason: "The coordinate is missing or outside the current window.",
+                    recommendations: ["Choose a point inside the current window screenshot."]
+                )
+            }
+            return PlanCheckResult(
+                snapshotID: snapshotID,
+                readiness: .ready,
+                reason: "The coordinate is inside a screenshot-backed current window.",
+                recommendations: ["Execute once with a concrete verification condition; refresh instead of repeating if it is not observed."]
+            )
+        }
+
+        guard let elementHandle,
+              elementHandle.hasPrefix("\(snapshotID):"),
+              let element = snapshot.elements.first(where: { $0.handle == elementHandle }) else {
+            return PlanCheckResult(
+                snapshotID: snapshotID,
+                readiness: .rejected,
+                reason: "The target element is missing or does not belong to the current snapshot.",
+                recommendations: ["Use element_find on this snapshot and choose one unambiguous current handle."]
+            )
+        }
+
+        if (action == .setValue || action == .typeText) && !element.state.isSettable {
+            return PlanCheckResult(
+                snapshotID: snapshotID,
+                readiness: .rejected,
+                reason: "The selected element is not settable.",
+                target: element,
+                recommendations: ["Find a current editable element with settable=true."]
+            )
+        }
+
+        return PlanCheckResult(
+            snapshotID: snapshotID,
+            readiness: .ready,
+            reason: "The target belongs to the current snapshot and satisfies the action prerequisites.",
+            target: element,
+            recommendations: ["Execute once with a concrete verification condition; use the returned snapshot for the next step."]
+        )
+    }
+
     public func execute(_ request: ActionRequest, highImpact: Bool, confirmed: Bool, foregroundApproved: Bool = false) async throws -> ActionResult {
         guard !lock.withLock({ stopped }) else {
             throw BridgeError(code: .invalidRequest, message: "This automation session was stopped. Start a new MCP connection or service session to resume.")

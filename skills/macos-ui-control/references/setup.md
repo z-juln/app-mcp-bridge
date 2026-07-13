@@ -46,7 +46,7 @@ If the client does not support local HTTP MCP, use stdio:
 }
 ```
 
-Restart or reload MCP servers, then confirm that all nine tools are visible, including `snapshot_get`, `action_run`, and `emergency_stop`.
+Restart or reload MCP servers, then confirm that all ten tools are visible, including `snapshot_get`, `plan_check`, `action_run`, and `emergency_stop`.
 
 For the local Cursor and WorkBuddy installations, configure both without printing the token:
 

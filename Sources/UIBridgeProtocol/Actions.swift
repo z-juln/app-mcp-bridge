@@ -67,6 +67,36 @@ public struct ActionRequest: Codable, Hashable, Sendable {
     }
 }
 
+public enum PlanReadiness: String, Codable, Sendable {
+    case ready
+    case needsScreenshot = "needs_screenshot"
+    case needsConfirmation = "needs_confirmation"
+    case needsForegroundApproval = "needs_foreground_approval"
+    case rejected
+}
+
+public struct PlanCheckResult: Codable, Hashable, Sendable {
+    public let snapshotID: String
+    public let readiness: PlanReadiness
+    public let reason: String
+    public let target: ElementDescriptor?
+    public let recommendations: [String]
+
+    public init(
+        snapshotID: String,
+        readiness: PlanReadiness,
+        reason: String,
+        target: ElementDescriptor? = nil,
+        recommendations: [String] = []
+    ) {
+        self.snapshotID = snapshotID
+        self.readiness = readiness
+        self.reason = reason
+        self.target = target
+        self.recommendations = recommendations
+    }
+}
+
 public enum ActionStatus: String, Codable, Sendable {
     case confirmed
     case notObserved = "not_observed"

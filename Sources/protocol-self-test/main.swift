@@ -69,11 +69,24 @@ func testErrorCodesAreUnique() throws {
     try expect(Set(rawValues).count == rawValues.count, "Bridge error codes are not unique")
 }
 
+func testPlanCheckRoundTrip() throws {
+    let result = PlanCheckResult(
+        snapshotID: "snap-1",
+        readiness: .needsScreenshot,
+        reason: "Coordinate needs current visual grounding.",
+        recommendations: ["Capture a screenshot."]
+    )
+    let data = try JSONEncoder().encode(result)
+    let decoded = try JSONDecoder().decode(PlanCheckResult.self, from: data)
+    try expect(decoded == result, "Plan check JSON round-trip changed data")
+}
+
 do {
     try testSnapshotRoundTrip()
     try testActionRoundTrip()
     try testErrorCodesAreUnique()
-    print("protocol-self-test: 3 checks passed")
+    try testPlanCheckRoundTrip()
+    print("protocol-self-test: 4 checks passed")
 } catch {
     fputs("protocol-self-test failed: \(error)\n", stderr)
     exit(1)

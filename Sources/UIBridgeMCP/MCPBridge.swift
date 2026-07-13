@@ -82,6 +82,11 @@ public enum MCPBridge {
                     ])
                 ),
                 Tool(
+                    name: "plan_check",
+                    description: "Check one proposed UI action against the live snapshot before execution; reports stale targets, screenshot needs, focus consent, and high-impact confirmation requirements.",
+                    inputSchema: planCheckSchema
+                ),
+                Tool(
                     name: "screenshot_get",
                     description: "Return the PNG captured by snapshot_get when include_screenshot was true.",
                     inputSchema: .object([
@@ -153,6 +158,28 @@ public enum MCPBridge {
                         settable: params.arguments?["settable"]?.boolValue,
                         limit: params.arguments?["limit"]?.intValue ?? 50
                     ))
+                case "plan_check":
+                    guard let snapshotID = params.arguments?["snapshot_id"]?.stringValue,
+                          let actionValue = params.arguments?["action"]?.stringValue,
+                          let action = ActionKind(rawValue: actionValue) else {
+                        return failure("snapshot_id and a valid action are required")
+                    }
+                    let coordinate: UIBPoint? = if let x = numericValue(params.arguments?["coordinate_x"]),
+                                                   let y = numericValue(params.arguments?["coordinate_y"]) {
+                        UIBPoint(x: x, y: y)
+                    } else {
+                        nil
+                    }
+                    return try success(try runtime.checkPlan(
+                        snapshotID: snapshotID,
+                        elementHandle: params.arguments?["element_handle"]?.stringValue,
+                        action: action,
+                        coordinate: coordinate,
+                        delivery: params.arguments?["delivery"]?.stringValue.flatMap(DeliveryPreference.init(rawValue:)) ?? .background,
+                        highImpact: params.arguments?["high_impact"]?.boolValue ?? false,
+                        confirmed: params.arguments?["confirmed"]?.boolValue ?? false,
+                        foregroundApproved: params.arguments?["foreground_approved"]?.boolValue ?? false
+                    ))
                 case "screenshot_get":
                     guard let handle = params.arguments?["handle"]?.stringValue,
                           let data = runtime.screenshotData(handle: handle) else {
@@ -204,6 +231,22 @@ public enum MCPBridge {
             "foreground_approved": boolean("True only after the user approves bringing the target app forward"),
         ]),
         "required": .array([.string("snapshot_id"), .string("action"), .string("verification_kind")]),
+    ])
+
+    private static let planCheckSchema: Value = .object([
+        "type": .string("object"),
+        "properties": .object([
+            "snapshot_id": string("Current snapshot identifier"),
+            "element_handle": string("Proposed current element handle"),
+            "action": string("Proposed action_run action"),
+            "coordinate_x": number("Window-relative x coordinate for coordinate_click"),
+            "coordinate_y": number("Window-relative y coordinate for coordinate_click"),
+            "delivery": string("background or foreground"),
+            "high_impact": boolean("True for send, publish, delete, purchase, permission change, or submission"),
+            "confirmed": boolean("Whether the exact high-impact action was explicitly confirmed"),
+            "foreground_approved": boolean("Whether bringing the target app forward was approved"),
+        ]),
+        "required": .array([.string("snapshot_id"), .string("action")]),
     ])
 
     private static func actionRequest(_ arguments: [String: Value]?) -> ActionRequest? {

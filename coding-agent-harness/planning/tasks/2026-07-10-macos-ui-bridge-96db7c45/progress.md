@@ -239,6 +239,14 @@
 - 下一步：通过客户端完成一个安全、可验证的完整桌面任务。
 - 证据：`command:TARGET:Sources/UIBridgeServer/MCPHTTPHandler.swift:Cursor connected and WorkBuddy reconnect exposes nine tools`
 
+### 2026-07-13 - 通用执行前判断
+
+- 做了什么：增加 `plan_check`，让外部模型在执行动作前用当前快照校验目标、截图依据、前台切换许可和高影响确认；App 本身不内置模型，不额外消耗模型额度。
+- 验证：生产版构建、签名、覆盖安装成功；MCP 自测识别 10 个工具；无截图坐标动作被要求先取截图，未确认高影响动作被拦截，Skill 格式检查通过。
+- 客户端现状：WorkBuddy 连接器已在线，但其窗口出现画面停留在连接器页、可访问结构已切到新任务页的不一致，未继续反复点击以免干扰桌面；完整客户端动作仍待补测。
+- 下一步：用稳定客户端或专用 MCP 测试客户端完成一个 TextEdit 写入与回读闭环，再做最终审查。
+- 证据：`command:TARGET:skills/macos-ui-control/scripts/self_test.py:ten tools, plan checked, confirmation protected`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。
