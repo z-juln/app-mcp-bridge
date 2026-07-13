@@ -110,6 +110,13 @@
 - 下一步：补充 element_find、截图读取和会话停止能力，再做企业微信受控动作路径验证。
 - 证据：`command:TARGET:Sources/UIBridgeMCP:four application live compatibility smoke passed`
 
+### 2026-07-13 - 无打扰查询与紧急停止
+
+- 做了什么：MCP/HTTP 增加快照内控件筛选、按句柄读取截图和紧急停止；停止会清空当前快照并拒绝同一会话后续动作；MCP 错误返回稳定代码和具体原因；Skill 规定仅在结构不足时读取截图。
+- 验证：纯构建、协议自检、Skill 校验和 MCP 工具契约通过；紧急停止后模拟动作被拒绝并返回明确 stopped 原因。按用户要求未打开、切换或操作任何桌面应用。
+- 下一步：补充诊断接口和 HTTP/MCP 契约自测；真实桌面回归等用户空闲时统一执行。
+- 证据：`command:TARGET:Sources/UIBridgeMacCore/AutomationRuntime.swift:headless query and emergency stop contract passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

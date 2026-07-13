@@ -59,6 +59,36 @@ public enum MCPBridge {
                     description: "Perform one accessibility action from a live snapshot and verify the resulting UI state.",
                     inputSchema: actionSchema
                 ),
+                Tool(
+                    name: "element_find",
+                    description: "Filter elements from a current snapshot without guessing among ambiguous matches.",
+                    inputSchema: .object([
+                        "type": .string("object"),
+                        "properties": .object([
+                            "snapshot_id": string("Current snapshot identifier"),
+                            "role": string("Exact accessibility role, such as AXButton"),
+                            "text": string("Case-insensitive label or value fragment"),
+                            "enabled": boolean("Filter by enabled state"),
+                            "settable": boolean("Filter by settable state"),
+                            "limit": integer("Maximum results, capped at 200"),
+                        ]),
+                        "required": .array([.string("snapshot_id")]),
+                    ])
+                ),
+                Tool(
+                    name: "screenshot_get",
+                    description: "Return the PNG captured by snapshot_get when include_screenshot was true.",
+                    inputSchema: .object([
+                        "type": .string("object"),
+                        "properties": .object(["handle": string("Screenshot handle from the snapshot")]),
+                        "required": .array([.string("handle")]),
+                    ])
+                ),
+                Tool(
+                    name: "emergency_stop",
+                    description: "Stop all further actions in this MCP session and discard live snapshots.",
+                    inputSchema: .object(["type": .string("object")])
+                ),
             ])
         }
 
@@ -100,9 +130,35 @@ public enum MCPBridge {
                         confirmed: params.arguments?["confirmed"]?.boolValue ?? false,
                         foregroundApproved: params.arguments?["foreground_approved"]?.boolValue ?? false
                     ))
+                case "element_find":
+                    guard let snapshotID = params.arguments?["snapshot_id"]?.stringValue else {
+                        return failure("snapshot_id is required")
+                    }
+                    return try success(try runtime.findElements(
+                        snapshotID: snapshotID,
+                        role: params.arguments?["role"]?.stringValue,
+                        text: params.arguments?["text"]?.stringValue,
+                        enabled: params.arguments?["enabled"]?.boolValue,
+                        settable: params.arguments?["settable"]?.boolValue,
+                        limit: params.arguments?["limit"]?.intValue ?? 50
+                    ))
+                case "screenshot_get":
+                    guard let handle = params.arguments?["handle"]?.stringValue,
+                          let data = runtime.screenshotData(handle: handle) else {
+                        return failure("screenshot handle is expired or unknown")
+                    }
+                    return .init(
+                        content: [.image(data: data.base64EncodedString(), mimeType: "image/png", annotations: nil, _meta: nil)],
+                        isError: false
+                    )
+                case "emergency_stop":
+                    runtime.emergencyStop()
+                    return try success(["status": "stopped", "resume": "start a new MCP connection"])
                 default:
                     return failure("unknown tool: \(params.name)")
                 }
+            } catch let error as BridgeError {
+                return failure("\(error.code.rawValue): \(error.message)")
             } catch {
                 return failure("tool failed: \(error.localizedDescription)")
             }

@@ -18,7 +18,7 @@ Start every task with `permissions_get`. The bridge presents a native dialog wit
 1. Call `apps_list`; match by bundle identifier and name. Return candidates instead of guessing when multiple apps match.
 2. Call `windows_list` with the selected app's `pid`; prefer a visible, capturable window whose title fits the request.
 3. Refresh app and window state after an app relaunch, navigation, dialog, or unexpected result.
-4. Call `snapshot_get` for the selected pid and window. Search its current `elements` by role, label, value, state, and parent relationship; return candidates instead of choosing an ambiguous match.
+4. Call `snapshot_get` for the selected pid and window. Use `element_find` to filter by role, text, and state; return candidates instead of choosing an ambiguous match. Request and read a screenshot only when the accessibility tree is partial or visual confirmation is necessary.
 5. Call `action_run` only with a handle from that snapshot and a concrete verification condition. Mark external-impact actions as `high_impact`; set `confirmed` only after the user explicitly approves the exact final action.
 6. Trust `confirmed` only when the returned status is `confirmed`. On `not_observed`, refresh the snapshot and diagnose instead of repeating the write.
 
@@ -30,6 +30,7 @@ Start every task with `permissions_get`. The bridge presents a native dialog wit
 - Never use remembered coordinates. Derive targets from the current window snapshot; refresh after any layout change.
 - Never expose password-field values, access tokens, private message bodies, or screenshots unrelated to the task.
 - On an unsupported tool or partial UI tree, report the exact limitation and the safest next step. Do not invent success.
+- Call `emergency_stop` immediately if the user asks to stop, the target changes unexpectedly, or repeated UI state cannot be explained. Start a new connection before any later action.
 
 ## Diagnose
 

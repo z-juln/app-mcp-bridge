@@ -13,6 +13,7 @@ public final class AutomationRuntime: @unchecked Sendable {
     private let lock = NSLock()
     private var contexts: [String: SnapshotContext] = [:]
     private var screenshots: [String: Data] = [:]
+    private var stopped = false
 
     public init() {}
 
@@ -71,7 +72,40 @@ public final class AutomationRuntime: @unchecked Sendable {
         lock.withLock { screenshots[handle] }
     }
 
+    public func snapshot(id: String) throws -> Snapshot {
+        guard let context = lock.withLock({ contexts[id] }), context.snapshot.expiresAt > Date() else {
+            discard(snapshotID: id)
+            throw BridgeError(code: .snapshotStale, message: "Snapshot is expired or unknown.", retryable: true)
+        }
+        return context.snapshot
+    }
+
+    public func findElements(
+        snapshotID: String,
+        role: String? = nil,
+        text: String? = nil,
+        enabled: Bool? = nil,
+        settable: Bool? = nil,
+        limit: Int = 50
+    ) throws -> [ElementDescriptor] {
+        let snapshot = try snapshot(id: snapshotID)
+        return Array(snapshot.elements.lazy.filter { element in
+            if let role, element.role.caseInsensitiveCompare(role) != .orderedSame { return false }
+            if let enabled, element.state.isEnabled != enabled { return false }
+            if let settable, element.state.isSettable != settable { return false }
+            if let text {
+                let matches = element.label?.localizedCaseInsensitiveContains(text) == true
+                    || element.value?.localizedCaseInsensitiveContains(text) == true
+                if !matches { return false }
+            }
+            return true
+        }.prefix(max(1, min(limit, 200))))
+    }
+
     public func execute(_ request: ActionRequest, highImpact: Bool, confirmed: Bool, foregroundApproved: Bool = false) async throws -> ActionResult {
+        guard !lock.withLock({ stopped }) else {
+            throw BridgeError(code: .invalidRequest, message: "This automation session was stopped. Start a new MCP connection or service session to resume.")
+        }
         if highImpact && !confirmed {
             return ActionResult(
                 actionID: UUID().uuidString,
@@ -119,6 +153,17 @@ public final class AutomationRuntime: @unchecked Sendable {
             newSnapshotID: after.snapshotID,
             evidence: evidence ?? ActionEvidence(condition: "verification_not_observed")
         )
+    }
+
+    public func emergencyStop() {
+        let snapshotIDs = lock.withLock { () -> [String] in
+            stopped = true
+            let ids = Array(contexts.keys)
+            contexts.removeAll()
+            screenshots.removeAll()
+            return ids
+        }
+        for id in snapshotIDs { treeReader.discard(snapshotID: id) }
     }
 
     private func discard(snapshotID: String) {

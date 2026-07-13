@@ -50,6 +50,29 @@ struct BridgeRouter: Sendable {
                     foregroundApproved: input.foregroundApproved ?? false
                 ))
             } catch { return bridgeFailure(error) }
+        case ("POST", "/v1/elements/find"):
+            do {
+                let input = try decoder.decode(ElementFindInput.self, from: request.body)
+                return encode(try runtime.findElements(
+                    snapshotID: input.snapshotID,
+                    role: input.role,
+                    text: input.text,
+                    enabled: input.enabled,
+                    settable: input.settable,
+                    limit: input.limit ?? 50
+                ))
+            } catch { return bridgeFailure(error) }
+        case ("POST", "/v1/screenshots/get"):
+            do {
+                let input = try decoder.decode(ScreenshotInput.self, from: request.body)
+                guard let data = runtime.screenshotData(handle: input.handle) else {
+                    throw BridgeError(code: .snapshotStale, message: "Screenshot handle is expired or unknown.", retryable: true)
+                }
+                return HTTPResponse(body: data, contentType: "image/png")
+            } catch { return bridgeFailure(error) }
+        case ("POST", "/v1/emergency-stop"):
+            runtime.emergencyStop()
+            return json(["status": "stopped", "resume": "restart the service session"])
         default:
             if request.method == "GET", let pid = windowsPID(from: request.path) {
                 return encode(WindowDiscovery.listWindows(pid: pid))
@@ -101,4 +124,17 @@ private struct ActionInput: Decodable {
     let highImpact: Bool?
     let confirmed: Bool?
     let foregroundApproved: Bool?
+}
+
+private struct ElementFindInput: Decodable {
+    let snapshotID: String
+    let role: String?
+    let text: String?
+    let enabled: Bool?
+    let settable: Bool?
+    let limit: Int?
+}
+
+private struct ScreenshotInput: Decodable {
+    let handle: String
 }
