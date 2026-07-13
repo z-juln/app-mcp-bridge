@@ -299,6 +299,13 @@
 - 验证：debug/release 构建、协议自检、正式签名、覆盖安装和 10 工具 MCP 自测通过；系统运行信息显示 `App MCP Bridge`，旧 App 路径已移除，两项系统权限均保持 true。
 - 证据：`command:TARGET:/Applications/App MCP Bridge.app:installed display name, permissions, health and MCP self-test passed`
 
+### 2026-07-13 - MCP 连接名统一
+
+- 做了什么：MCP 服务、自检、Skill、Cursor 和 WorkBuddy 配置统一使用 `app-mcp-bridge`；配置迁移会保留原始备份并删除旧的 `macos-ui-bridge` 连接项。
+- 兼容范围：macOS 安装包内部程序名、权限身份、本地端口和已有令牌保持不变，因此不需要重新授权或生成新令牌。
+- 验证：安装版本地地址和直接启动方式都返回新连接名，10 个工具完整可用；Cursor 与 WorkBuddy 配置均只保留新连接项，两项系统权限继续为 true。
+- 证据：`command:TARGET:skills/macos-ui-control/scripts/self_test.py:stdio and HTTP MCP identify as app-mcp-bridge; client configs migrated`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

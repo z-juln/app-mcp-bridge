@@ -13,7 +13,7 @@ public enum MCPBridge {
 
     public static func makeServer(runtime: AutomationRuntime) async -> Server {
         let server = Server(
-            name: "macos-ui-bridge",
+            name: "app-mcp-bridge",
             version: "0.1.0",
             instructions: "Inspect and operate macOS applications through live system state.",
             capabilities: .init(tools: .init(listChanged: false))

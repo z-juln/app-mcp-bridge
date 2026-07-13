@@ -23,7 +23,8 @@ python3 skills/macos-ui-control/scripts/self_test.py
 选择“前往设置”后，App 会以自己的名称登记到对应权限列表。
 
 产品名不包含平台名称，便于以后增加 Windows 版本。当前版本仍只支持 macOS；
-MCP 连接名 `macos-ui-bridge` 暂时保留，因此已有提示词和工具配置不需要改名。
+MCP 连接名统一为 `app-mcp-bridge`。安装后的程序文件名和 macOS 权限身份继续保留，
+避免改名导致系统要求重新授权。
 
 首次构建会在本机创建一个只供此项目使用的长期程序身份，因此之后重新构建、覆盖安装时会沿用已有权限。
 从旧构建方式升级到这一版时，需要在系统设置里将两项权限各关闭再开启一次；这是
@@ -99,7 +100,7 @@ TOKEN=$('/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge' token)
 ```json
 {
   "mcpServers": {
-    "macos-ui-bridge": {
+    "app-mcp-bridge": {
       "url": "http://127.0.0.1:8765/mcp",
       "headers": {
         "Authorization": "Bearer $TOKEN"
@@ -114,7 +115,7 @@ TOKEN=$('/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge' token)
 ```json
 {
   "mcpServers": {
-    "macos-ui-bridge": {
+    "app-mcp-bridge": {
       "command": "/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge",
       "args": ["mcp"]
     }

@@ -35,7 +35,7 @@ def main() -> int:
             "jsonrpc": "2.0", "id": 1, "method": "initialize",
             "params": {
                 "protocolVersion": "2025-06-18", "capabilities": {},
-                "clientInfo": {"name": "macos-ui-bridge-self-test", "version": "1.0"},
+                "clientInfo": {"name": "app-mcp-bridge-self-test", "version": "1.0"},
             },
         })
         initialized = receive(process, 1)
@@ -52,7 +52,7 @@ def main() -> int:
         tool_names = [tool["name"] for tool in listed["result"]["tools"]]
         apps = json.loads(called["result"]["content"][0]["text"])
         required = {"permissions_get", "apps_list", "windows_list", "snapshot_get", "plan_check", "action_run"}
-        if server_name != "macos-ui-bridge" or not required.issubset(tool_names) or not isinstance(apps, list):
+        if server_name != "app-mcp-bridge" or not required.issubset(tool_names) or not isinstance(apps, list):
             raise RuntimeError("MCP response did not match the expected bridge contract")
 
         ordered_apps = sorted(apps, key=lambda app: not app.get("isFrontmost", False))

@@ -25,7 +25,7 @@ Configure the endpoint and replace `TOKEN_FROM_COMMAND`:
 ```json
 {
   "mcpServers": {
-    "macos-ui-bridge": {
+    "app-mcp-bridge": {
       "url": "http://127.0.0.1:8765/mcp",
       "headers": { "Authorization": "Bearer TOKEN_FROM_COMMAND" }
     }
@@ -38,7 +38,7 @@ If the client does not support local HTTP MCP, use stdio:
 ```json
 {
   "mcpServers": {
-    "macos-ui-bridge": {
+    "app-mcp-bridge": {
       "command": "/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge",
       "args": ["mcp"]
     }
@@ -63,7 +63,7 @@ Prefer the same authenticated URL when supported. Otherwise create a local stdio
 
 - command: `/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge`
 - arguments: `mcp`
-- working directory: `/Users/juln/Desktop/workspace/macos-ui-bridge` when the client requests one
+- working directory: `/Users/juln/Desktop/workspace/app-mcp-bridge` when the client requests one
 
 The client must launch one process per MCP connection. Do not run the `mcp` command manually in a terminal for normal use.
 

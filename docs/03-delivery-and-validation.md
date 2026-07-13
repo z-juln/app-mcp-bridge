@@ -286,9 +286,9 @@ macos-ui-bridge/
 
 ### 决策 6：项目名称
 
-当前兼容标识为 `macos-ui-bridge`，显示名称为 `App MCP Bridge`。兼容标识暂不更改，避免现有 MCP 配置和 macOS 权限失效。
+显示名称和 MCP 连接名分别为 `App MCP Bridge` 与 `app-mcp-bridge`。macOS 安装包内部程序名和权限身份保持兼容，避免重新授权。
 
-影响：显示名先采用平台无关名称；命令名、bundle identifier、端口和 Skill 名称在兼容迁移方案确定前保持不变。
+影响：客户端配置会自动备份并把旧连接项迁移到新名称；安装包内部程序名、权限身份和端口保持不变。
 
 ## 10. 确认后的下一步
 
