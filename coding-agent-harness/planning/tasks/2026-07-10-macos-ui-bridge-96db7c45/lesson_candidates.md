@@ -7,14 +7,14 @@
 | Field | Value |
 | --- | --- |
 | Schema version | lesson-candidate-v1 |
-| Task-level status | pending-review |
+| Task-level status | no-candidate-accepted |
 | Review gate | candidate-file-present |
-| Review decision | pending-human-review |
+| Review decision | no-candidate-accepted |
 | Promotion state | not-promoted |
-| Closeout token | pending |
+| Closeout token | checked-none |
 | Source task | 2026-07-10-macos-ui-bridge-96db7c45 |
 | Owner | coordinator |
-| Last updated | 2026-07-10 |
+| Last updated | 2026-07-13 |
 
 ## Schema
 
@@ -49,7 +49,7 @@
 
 ## No-Candidate Reason
 
-尚未判定。只有人工审查接受本任务没有可复用候选时，才填写这里。
+权限时序、动作后验证和提交式接力均已直接进入本项目的 AGENTS、Skill、代码与安装流程；没有额外的跨项目治理候选。
 
 ## Promotion Notes
 
