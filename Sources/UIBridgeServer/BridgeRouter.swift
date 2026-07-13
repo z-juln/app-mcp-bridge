@@ -46,7 +46,8 @@ struct BridgeRouter: Sendable {
                 return encode(try await runtime.execute(
                     input.request,
                     highImpact: input.highImpact ?? false,
-                    confirmed: input.confirmed ?? false
+                    confirmed: input.confirmed ?? false,
+                    foregroundApproved: input.foregroundApproved ?? false
                 ))
             } catch { return bridgeFailure(error) }
         default:
@@ -99,4 +100,5 @@ private struct ActionInput: Decodable {
     let request: ActionRequest
     let highImpact: Bool?
     let confirmed: Bool?
+    let foregroundApproved: Bool?
 }

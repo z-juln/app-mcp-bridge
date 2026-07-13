@@ -1,5 +1,6 @@
 @preconcurrency import ScreenCaptureKit
 import AppKit
+import CryptoKit
 import Foundation
 import UIBridgeProtocol
 
@@ -14,7 +15,7 @@ public struct CapturedWindow: Sendable {
 }
 
 public enum WindowCapture {
-    public static func capture(windowID: UInt32, handle: String) async throws -> CapturedWindow {
+    public static func capture(windowID: UInt32, handle _: String) async throws -> CapturedWindow {
         guard CGPreflightScreenCaptureAccess() else {
             throw BridgeError(
                 code: .permissionMissing,
@@ -44,7 +45,7 @@ public enum WindowCapture {
 
         return CapturedWindow(
             descriptor: ScreenshotDescriptor(
-                handle: handle,
+                handle: "shot-" + SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(),
                 width: image.width,
                 height: image.height
             ),

@@ -97,7 +97,8 @@ public enum MCPBridge {
                     return try success(try await runtime.execute(
                         request,
                         highImpact: params.arguments?["high_impact"]?.boolValue ?? false,
-                        confirmed: params.arguments?["confirmed"]?.boolValue ?? false
+                        confirmed: params.arguments?["confirmed"]?.boolValue ?? false,
+                        foregroundApproved: params.arguments?["foreground_approved"]?.boolValue ?? false
                     ))
                 default:
                     return failure("unknown tool: \(params.name)")
@@ -117,32 +118,44 @@ public enum MCPBridge {
         "properties": .object([
             "snapshot_id": string("Current snapshot identifier"),
             "element_handle": string("Element handle from snapshot_get"),
-            "action": string("press, select, set_value, type_text, or show_menu"),
-            "text": string("Text required by set_value and type_text"),
+            "action": string("press, select, set_value, type_text, show_menu, press_key, scroll, or coordinate_click"),
+            "text": string("Text required by set_value/type_text; signed line count for scroll"),
+            "key": string("Key name for press_key: return, tab, space, delete, escape, or an arrow"),
+            "coordinate_x": number("Window-relative x coordinate for coordinate_click"),
+            "coordinate_y": number("Window-relative y coordinate for coordinate_click"),
             "delivery": string("background by default; foreground returns a consent requirement"),
             "verification_kind": string("element_present, element_absent, element_value_contains, window_title_contains, or screenshot_changed"),
             "verification_value": string("Text expected by the verification"),
             "high_impact": boolean("True for send, publish, delete, purchase, permission change, or submission"),
             "confirmed": boolean("True only after explicit user confirmation for a high-impact action"),
+            "foreground_approved": boolean("True only after the user approves bringing the target app forward"),
         ]),
-        "required": .array([.string("snapshot_id"), .string("element_handle"), .string("action"), .string("verification_kind")]),
+        "required": .array([.string("snapshot_id"), .string("action"), .string("verification_kind")]),
     ])
 
     private static func actionRequest(_ arguments: [String: Value]?) -> ActionRequest? {
         guard let arguments,
               let snapshotID = arguments["snapshot_id"]?.stringValue,
-              let handle = arguments["element_handle"]?.stringValue,
               let actionValue = arguments["action"]?.stringValue,
               let action = ActionKind(rawValue: actionValue),
               let verificationValue = arguments["verification_kind"]?.stringValue,
               let verificationKind = VerificationExpectation.Kind(rawValue: verificationValue) else { return nil }
         let delivery = arguments["delivery"]?.stringValue.flatMap(DeliveryPreference.init(rawValue:)) ?? .background
+        let target: ActionTarget
+        if action == .coordinateClick,
+           let x = arguments["coordinate_x"]?.doubleValue,
+           let y = arguments["coordinate_y"]?.doubleValue {
+            target = .coordinate(point: UIBPoint(x: x, y: y))
+        } else if let handle = arguments["element_handle"]?.stringValue {
+            target = .element(handle: handle)
+        } else { return nil }
         return ActionRequest(
             snapshotID: snapshotID,
-            target: .element(handle: handle),
+            target: target,
             action: action,
             delivery: delivery,
             text: arguments["text"]?.stringValue,
+            key: arguments["key"]?.stringValue,
             verification: VerificationExpectation(kind: verificationKind, value: arguments["verification_value"]?.stringValue)
         )
     }
@@ -165,6 +178,10 @@ public enum MCPBridge {
 
     private static func boolean(_ description: String) -> Value {
         .object(["type": .string("boolean"), "description": .string(description)])
+    }
+
+    private static func number(_ description: String) -> Value {
+        .object(["type": .string("number"), "description": .string(description)])
     }
 
     private static func success<T: Encodable>(_ value: T) throws -> CallTool.Result {

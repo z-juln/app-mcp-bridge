@@ -71,7 +71,7 @@ public final class AutomationRuntime: @unchecked Sendable {
         lock.withLock { screenshots[handle] }
     }
 
-    public func execute(_ request: ActionRequest, highImpact: Bool, confirmed: Bool) async throws -> ActionResult {
+    public func execute(_ request: ActionRequest, highImpact: Bool, confirmed: Bool, foregroundApproved: Bool = false) async throws -> ActionResult {
         if highImpact && !confirmed {
             return ActionResult(
                 actionID: UUID().uuidString,
@@ -92,7 +92,13 @@ public final class AutomationRuntime: @unchecked Sendable {
             throw BridgeError(code: .snapshotStale, message: "Snapshot expired before the action.", retryable: true)
         }
 
-        let delivered = try AccessibilityActionExecutor(treeReader: treeReader).execute(request)
+        let delivered: ActionResult
+        switch request.action {
+        case .pressKey, .scroll, .coordinateClick:
+            delivered = try ProcessEventExecutor.execute(request, snapshot: context.snapshot, foregroundApproved: foregroundApproved)
+        default:
+            delivered = try AccessibilityActionExecutor(treeReader: treeReader).execute(request)
+        }
         guard delivered.status != .foregroundRequired else { return delivered }
 
         let after = try await createSnapshot(

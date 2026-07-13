@@ -96,6 +96,13 @@
 - 下一步：重建安装 App，补齐按键、滚动、坐标后备与四类代表应用回归。
 - 证据：`command:TARGET:Sources/UIBridgeMacCore/AutomationRuntime.swift:real MCP/HTTP snapshot and verified TextEdit action passed`
 
+### 2026-07-13 - 后台事件与自动启动
+
+- 做了什么：补充后台按键、滚动和窗口相对坐标点击；切前台需要独立许可，坐标强制限制在当前快照窗口；截图改用内容指纹验证实际变化；安装脚本增加登录后自动启动。
+- 验证：独立 TextEdit 实例中后台 Tab 和滚动均改变真实画面并返回 confirmed；越界坐标返回错误且未执行；测试实例与临时文件均已清理；完整构建通过。
+- 下一步：重建安装 App，完成坐标安全冒烟和 Finder/企业微信/Electron 代表应用回归。
+- 证据：`command:TARGET:Sources/UIBridgeMacCore/ProcessEventExecutor.swift:real key/scroll and coordinate bounds smoke passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，App Bundle/系统权限测试暂不可执行；纯 Swift 核心可继续。

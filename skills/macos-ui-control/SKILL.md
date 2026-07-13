@@ -26,6 +26,7 @@ Start every task with `permissions_get`. The bridge presents a native dialog wit
 
 - Treat send, publish, delete, purchase, permission change, and submission as external-impact actions. Prepare them, then obtain explicit confirmation immediately before the final action.
 - Do not silently bring an app to the foreground or take keyboard/mouse control. Explain why foreground control is needed and ask first.
+- Prefer accessibility actions. Use `press_key` or `scroll` only when the control tree cannot express the operation. Use `coordinate_click` last, with coordinates derived from the current window snapshot; never reuse coordinates after a layout change.
 - Never use remembered coordinates. Derive targets from the current window snapshot; refresh after any layout change.
 - Never expose password-field values, access tokens, private message bodies, or screenshots unrelated to the task.
 - On an unsupported tool or partial UI tree, report the exact limitation and the safest next step. Do not invent success.
