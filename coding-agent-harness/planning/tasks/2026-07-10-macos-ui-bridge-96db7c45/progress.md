@@ -131,6 +131,13 @@
 - 下一步：继续 Streamable HTTP MCP 与最终收口。
 - 证据：`command:TARGET:Sources/macos-ui-bridge/main.swift:authorized startup has no permission dialog`
 
+### 2026-07-13 - 本地地址 MCP
+
+- 做了什么：App 的 `POST /mcp` 增加标准无状态 HTTP MCP，与直接启动方式共享同一工具和运行状态；继续使用本机令牌保护；README 与 Skill 接入说明增加推荐配置和备用方式。
+- 验证：HTTP MCP 完成协议初始化、9 工具发现和 diagnostics_get 调用；无令牌访问返回 401；stdio MCP、协议自检、核心真实截图自检、Skill 校验和完整构建通过。
+- 下一步：安装最终版本，完成审查、walkthrough 和任务收口。
+- 证据：`command:TARGET:Sources/UIBridgeServer/MCPHTTPHandler.swift:authenticated HTTP MCP roundtrip passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

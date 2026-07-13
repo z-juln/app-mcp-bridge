@@ -61,6 +61,7 @@ swift run macos-ui-bridge stop
 当前接口：
 
 - `GET /health`
+- `POST /mcp`
 - `GET /v1/permissions`
 - `GET /v1/apps`
 - `GET /v1/apps/{pid}/windows`
@@ -75,7 +76,28 @@ swift run macos-ui-bridge stop
 
 ## 接入 Cursor 或 WorkBuddy
 
-先执行 `swift build`，再把本机 MCP 服务配置为：
+推荐连接已运行 App 的本地地址。先执行：
+
+```bash
+TOKEN=$('/Applications/macOS UI Bridge.app/Contents/MacOS/macos-ui-bridge' token)
+```
+
+再把 `$TOKEN` 替换成上一步输出：
+
+```json
+{
+  "mcpServers": {
+    "macos-ui-bridge": {
+      "url": "http://127.0.0.1:8765/mcp",
+      "headers": {
+        "Authorization": "Bearer $TOKEN"
+      }
+    }
+  }
+}
+```
+
+如果客户端不支持本地地址，使用直接启动方式：
 
 ```json
 {
@@ -88,7 +110,7 @@ swift run macos-ui-bridge stop
 }
 ```
 
-详细权限和排错说明见 `skills/macos-ui-control/references/setup.md`。
+两种方式提供相同工具。详细权限和排错说明见 `skills/macos-ui-control/references/setup.md`。
 
 首次检查发现缺少辅助功能或屏幕录制权限时，服务会主动弹窗。选择“前往设置”即可
 打开对应的系统设置页；同一次运行不会重复弹出相同提醒。

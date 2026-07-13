@@ -23,7 +23,12 @@ let package = Package(
         ),
         .target(
             name: "UIBridgeServer",
-            dependencies: ["UIBridgeProtocol", "UIBridgeMacCore"]
+            dependencies: [
+                "UIBridgeProtocol",
+                "UIBridgeMacCore",
+                "UIBridgeMCP",
+                .product(name: "MCP", package: "swift-sdk"),
+            ]
         ),
         .target(
             name: "UIBridgeMCP",

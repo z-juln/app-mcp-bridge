@@ -5,12 +5,14 @@ import UIBridgeProtocol
 struct BridgeRouter: Sendable {
     let token: String
     let runtime: AutomationRuntime
+    let mcpHTTP: MCPHTTPHandler?
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    init(token: String, runtime: AutomationRuntime = AutomationRuntime()) {
+    init(token: String, runtime: AutomationRuntime = AutomationRuntime(), mcpHTTP: MCPHTTPHandler? = nil) {
         self.token = token
         self.runtime = runtime
+        self.mcpHTTP = mcpHTTP
         self.encoder = JSONEncoder()
         self.decoder = JSONDecoder()
     }
@@ -22,6 +24,10 @@ struct BridgeRouter: Sendable {
         }
         guard request.headers["authorization"] == "Bearer \(token)" else {
             return json(status: 401, ["error": "unauthorized"])
+        }
+
+        if request.path == "/mcp", let mcpHTTP {
+            return await mcpHTTP.handle(request)
         }
 
         switch (request.method, request.path) {

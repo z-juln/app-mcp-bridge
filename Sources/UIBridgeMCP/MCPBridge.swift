@@ -5,7 +5,13 @@ import UIBridgeProtocol
 
 public enum MCPBridge {
     public static func runStdio() async throws {
-        let runtime = AutomationRuntime()
+        let server = await makeServer(runtime: AutomationRuntime())
+        let transport = StdioTransport()
+        try await server.start(transport: transport)
+        await server.waitUntilCompleted()
+    }
+
+    public static func makeServer(runtime: AutomationRuntime) async -> Server {
         let server = Server(
             name: "macos-ui-bridge",
             version: "0.1.0",
@@ -177,9 +183,7 @@ public enum MCPBridge {
             }
         }
 
-        let transport = StdioTransport()
-        try await server.start(transport: transport)
-        await server.waitUntilCompleted()
+        return server
     }
 
     private static let actionSchema: Value = .object([

@@ -1,5 +1,6 @@
 @preconcurrency import Network
 import Foundation
+import UIBridgeMacCore
 
 public final class HTTPServer: @unchecked Sendable {
     public let port: UInt16
@@ -7,9 +8,15 @@ public final class HTTPServer: @unchecked Sendable {
     private let queue = DispatchQueue(label: "com.juln.macos-ui-bridge.http")
     private var listener: NWListener?
 
-    public init(port: UInt16 = 8765, token: String) {
+    private init(port: UInt16 = 8765, token: String, runtime: AutomationRuntime, mcpHTTP: MCPHTTPHandler?) {
         self.port = port
-        self.router = BridgeRouter(token: token)
+        self.router = BridgeRouter(token: token, runtime: runtime, mcpHTTP: mcpHTTP)
+    }
+
+    public static func make(port: UInt16 = 8765, token: String) async throws -> HTTPServer {
+        let runtime = AutomationRuntime()
+        let mcpHTTP = try await MCPHTTPHandler.make(runtime: runtime)
+        return HTTPServer(port: port, token: token, runtime: runtime, mcpHTTP: mcpHTTP)
     }
 
     public func start() throws {

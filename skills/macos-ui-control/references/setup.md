@@ -14,7 +14,26 @@ The self-test is read-only. A successful run prints the server name, tool names,
 
 ## Cursor
 
-Add this server to the MCP configuration, replacing the project path if needed:
+Prefer the running App's authenticated local endpoint. Obtain its token:
+
+```bash
+/Applications/macOS\ UI\ Bridge.app/Contents/MacOS/macos-ui-bridge token
+```
+
+Configure the endpoint and replace `TOKEN_FROM_COMMAND`:
+
+```json
+{
+  "mcpServers": {
+    "macos-ui-bridge": {
+      "url": "http://127.0.0.1:8765/mcp",
+      "headers": { "Authorization": "Bearer TOKEN_FROM_COMMAND" }
+    }
+  }
+}
+```
+
+If the client does not support local HTTP MCP, use stdio:
 
 ```json
 {
@@ -27,11 +46,11 @@ Add this server to the MCP configuration, replacing the project path if needed:
 }
 ```
 
-Restart or reload MCP servers, then confirm that `permissions_get`, `apps_list`, and `windows_list` are visible.
+Restart or reload MCP servers, then confirm that all nine tools are visible, including `snapshot_get`, `action_run`, and `emergency_stop`.
 
 ## WorkBuddy and other MCP clients
 
-Create a local stdio MCP server using the same command and argument shown above:
+Prefer the same authenticated URL when supported. Otherwise create a local stdio MCP server:
 
 - command: `/Applications/macOS UI Bridge.app/Contents/MacOS/macos-ui-bridge`
 - arguments: `mcp`

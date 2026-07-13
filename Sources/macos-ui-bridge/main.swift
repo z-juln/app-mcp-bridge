@@ -27,7 +27,7 @@ enum UIBridgeCommand {
         case "serve":
             let port = parsePort(arguments) ?? 8765
             let token = try tokenStore.loadOrCreate()
-            let server = HTTPServer(port: port, token: token)
+            let server = try await HTTPServer.make(port: port, token: token)
             try server.start()
             print("macos-ui-bridge listening on http://127.0.0.1:\(port)")
             while !Task.isCancelled {
@@ -35,7 +35,7 @@ enum UIBridgeCommand {
             }
         case "app":
             let token = try tokenStore.loadOrCreate()
-            let server = HTTPServer(port: 8765, token: token)
+            let server = try await HTTPServer.make(port: 8765, token: token)
             try server.start()
             while !Task.isCancelled {
                 try await Task.sleep(for: .seconds(3_600))

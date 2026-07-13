@@ -34,16 +34,19 @@ struct HTTPResponse: Sendable {
     let status: Int
     let body: Data
     let contentType: String
+    let additionalHeaders: [String: String]
 
-    init(status: Int = 200, body: Data, contentType: String = "application/json; charset=utf-8") {
+    init(status: Int = 200, body: Data, contentType: String = "application/json; charset=utf-8", additionalHeaders: [String: String] = [:]) {
         self.status = status
         self.body = body
         self.contentType = contentType
+        self.additionalHeaders = additionalHeaders
     }
 
     func serialized() -> Data {
         let reason: String = switch status {
         case 200: "OK"
+        case 202: "Accepted"
         case 400: "Bad Request"
         case 401: "Unauthorized"
         case 409: "Conflict"
@@ -51,7 +54,11 @@ struct HTTPResponse: Sendable {
         case 405: "Method Not Allowed"
         default: "Internal Server Error"
         }
-        let header = "HTTP/1.1 \(status) \(reason)\r\nContent-Type: \(contentType)\r\nContent-Length: \(body.count)\r\nConnection: close\r\n\r\n"
+        let extras = additionalHeaders
+            .filter { $0.key.caseInsensitiveCompare("Content-Type") != .orderedSame }
+            .map { "\($0.key): \($0.value)\r\n" }
+            .joined()
+        let header = "HTTP/1.1 \(status) \(reason)\r\nContent-Type: \(contentType)\r\n\(extras)Content-Length: \(body.count)\r\nConnection: close\r\n\r\n"
         var data = Data(header.utf8)
         data.append(body)
         return data
