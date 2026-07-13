@@ -6,8 +6,10 @@
     <string>zh_CN</string>
     <key>CFBundleDisplayName</key>
     <string>macOS UI Bridge</string>
-    <key>CFBundleExecutable</key>
-    <string>macos-ui-bridge</string>
+	<key>CFBundleExecutable</key>
+	<string>macos-ui-bridge</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>com.juln.macos-ui-bridge</string>
     <key>CFBundleInfoDictionaryVersion</key>

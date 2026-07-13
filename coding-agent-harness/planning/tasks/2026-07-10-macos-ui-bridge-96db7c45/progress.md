@@ -217,6 +217,14 @@
 - 下一步：用户点击菜单确认“系统权限已就绪”提示可见。
 - 证据：`command:TARGET:Sources/UIBridgeMacCore/PermissionGuidance.swift:authorized branch built and installed; native menu UI requires human confirmation`
 
+### 2026-07-13 - 安装包正式图标
+
+- 发现：系统辅助功能提示仍显示默认网格图标；运行时设置的程序坞图标不会被系统权限界面读取，安装包缺少正式图标资源与声明。
+- 做了什么：构建时生成包含全套 macOS 尺寸的 Bridge 图标并写入 App 安装包，配置为系统级 App 图标；图形与程序坞的蓝色连接窗口标记一致。
+- 验证：生成的 icns 包含 16 到 1024 像素全套资源；覆盖安装后签名通过，两项权限保持 true；使用系统工作区接口读取安装版图标并渲染检查，结果为蓝底白色连接窗口图标，不再是默认网格。
+- 下一步：用户确认系统权限提示中的图标外观。
+- 证据：`screenshot:TARGET:/tmp/macos-ui-bridge-system-icon.png:macOS resolved installed bundle icon correctly`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

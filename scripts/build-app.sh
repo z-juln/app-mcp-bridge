@@ -11,6 +11,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$ROOT/.build/release/macos-ui-bridge" "$APP/Contents/MacOS/macos-ui-bridge"
 cp "$ROOT/Resources/App-Info.plist" "$APP/Contents/Info.plist"
+swift "$ROOT/scripts/generate-app-icon.swift" "$APP/Contents/Resources/AppIcon.icns"
 
 signing=(${(f)"$($ROOT/scripts/ensure-local-signing-identity.sh)"})
 keychain=${signing[1]}
