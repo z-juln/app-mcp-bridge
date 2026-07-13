@@ -145,6 +145,13 @@
 - 下一步：用户确认程序坞和菜单栏显示后重新提交最终审查。
 - 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:installed app identity and event loop passed`
 
+### 2026-07-13 - 菜单栏图标一致性
+
+- 做了什么：菜单栏不再使用系统显示器符号，改为与程序坞共用同一张蓝色 Bridge 图标并做 19pt 适配。
+- 验证：debug/release 构建、签名检查、重装和健康检查通过；等待用户肉眼确认最终显示。
+- 下一步：用户确认后重新提交最终审查。
+- 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:shared Dock and status icon build passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

@@ -10,15 +10,17 @@ final class AppShell: NSObject {
     init(token: String) {
         self.token = token
         NSApplication.shared.setActivationPolicy(.regular)
-        NSApplication.shared.applicationIconImage = Self.makeAppIcon()
+        let appIcon = Self.makeAppIcon()
+        NSApplication.shared.applicationIconImage = appIcon
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
 
-        statusItem.button?.image = NSImage(
-            systemSymbolName: "rectangle.connected.to.line.below",
-            accessibilityDescription: "macOS UI Bridge"
-        )
+        let menuBarIcon = (appIcon.copy() as? NSImage) ?? appIcon
+        menuBarIcon.size = NSSize(width: 19, height: 19)
+        menuBarIcon.isTemplate = false
+        statusItem.button?.image = menuBarIcon
+        statusItem.button?.imageScaling = .scaleProportionallyDown
         statusItem.button?.toolTip = "macOS UI Bridge"
         statusItem.menu = makeMenu()
     }
