@@ -32,9 +32,10 @@ public final class AutomationRuntime: @unchecked Sendable {
         }
 
         let snapshotID = UUID().uuidString
-        let read = try treeReader.readApplication(
+        let read = try treeReader.readWindow(
             pid: pid,
             snapshotID: snapshotID,
+            windowBounds: window.bounds,
             options: AccessibilityReadOptions(maxElements: maxElements, maxDepth: maxDepth)
         )
         let captured: CapturedWindow? = if includeScreenshot {

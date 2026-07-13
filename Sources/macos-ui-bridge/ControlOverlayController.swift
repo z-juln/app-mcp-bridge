@@ -52,7 +52,7 @@ final class ControlOverlayController: NSObject {
     }
 
     var activeTargets: [ControlledTarget] {
-        let cutoff = Date().addingTimeInterval(-15)
+        let cutoff = Date().addingTimeInterval(-90)
         return targets.compactMap { pid, state in
             guard state.lastSeen >= cutoff else { return nil }
             return ControlledTarget(pid: pid, name: state.name, lastSeen: state.lastSeen)
@@ -91,6 +91,17 @@ final class ControlOverlayController: NSObject {
         state.name = appName
         state.lastSeen = Date()
         state.hideBadge?.invalidate()
+
+        let targetIsFrontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier == pid
+        let targetWindowIsVisible = WindowDiscovery.listWindows(pid: pid).contains {
+            $0.windowID == record.windowID && $0.isVisible
+        }
+        guard targetIsFrontmost && targetWindowIsVisible else {
+            state.badgePanel.orderOut(nil)
+            state.cursorPanel?.orderOut(nil)
+            targets[pid] = state
+            return
+        }
 
         let badgeSize = badgePanel.frame.size
         badgePanel.setFrameOrigin(NSPoint(

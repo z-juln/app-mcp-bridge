@@ -14,6 +14,7 @@ public struct AutomationActivityRecord: Codable, Sendable {
     public let phase: AutomationActivityPhase
     public let pid: Int32
     public let appName: String
+    public let windowID: UInt32
     public let windowBounds: UIBRect
     public let pointer: UIBPoint?
 }
@@ -35,6 +36,7 @@ public enum AutomationActivityCenter {
             phase: phase,
             pid: snapshot.pid,
             appName: appName,
+            windowID: snapshot.windowID,
             windowBounds: snapshot.windowBounds,
             pointer: pointer
         )

@@ -42,6 +42,38 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
     public init() {}
 
     public func readApplication(pid: Int32, snapshotID: String, options: AccessibilityReadOptions = .init()) throws -> AccessibilityReadResult {
+        let root = try applicationRoot(pid: pid, options: options)
+        return read(root: root, snapshotID: snapshotID, coordinateOrigin: UIBPoint(x: 0, y: 0), options: options)
+    }
+
+    public func readWindow(
+        pid: Int32,
+        snapshotID: String,
+        windowBounds: UIBRect,
+        options: AccessibilityReadOptions = .init()
+    ) throws -> AccessibilityReadResult {
+        let application = try applicationRoot(pid: pid, options: options)
+        let windows = (copyAttribute(application, kAXWindowsAttribute) as? [AXUIElement]) ?? []
+        let target = windows.max { left, right in
+            windowMatchScore(frameAttribute(left), target: windowBounds) < windowMatchScore(frameAttribute(right), target: windowBounds)
+        }
+        guard let target, windowMatchScore(frameAttribute(target), target: windowBounds) > 0 else {
+            throw BridgeError(
+                code: .elementNotFound,
+                message: "Could not match the selected Core Graphics window to an accessibility window.",
+                retryable: true,
+                suggestedAction: "Refresh windows_list and retry with a current visible window."
+            )
+        }
+        return read(
+            root: target,
+            snapshotID: snapshotID,
+            coordinateOrigin: windowBounds.origin,
+            options: options
+        )
+    }
+
+    private func applicationRoot(pid: Int32, options: AccessibilityReadOptions) throws -> AXUIElement {
         guard AXIsProcessTrusted() else {
             throw BridgeError(
                 code: .permissionMissing,
@@ -52,7 +84,15 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
 
         let root = AXUIElementCreateApplication(pid)
         AXUIElementSetMessagingTimeout(root, Float(options.timeout))
+        return root
+    }
 
+    private func read(
+        root: AXUIElement,
+        snapshotID: String,
+        coordinateOrigin: UIBPoint,
+        options: AccessibilityReadOptions
+    ) -> AccessibilityReadResult {
         var visited = Set<CFHashCode>()
         var elements: [ElementDescriptor] = []
         var truncated = false
@@ -62,6 +102,7 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
             parentIndex: nil,
             depth: 0,
             snapshotID: snapshotID,
+            coordinateOrigin: coordinateOrigin,
             options: options,
             visited: &visited,
             elements: &elements,
@@ -80,6 +121,7 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
         parentIndex: Int?,
         depth: Int,
         snapshotID: String,
+        coordinateOrigin: UIBPoint,
         options: AccessibilityReadOptions,
         visited: inout Set<CFHashCode>,
         elements: inout [ElementDescriptor],
@@ -101,7 +143,14 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
             stringAttribute(element, kAXHelpAttribute),
         ])
         let value = role == "AXSecureTextField" ? nil : safeStringValue(copyAttribute(element, kAXValueAttribute))
-        let frame = frameAttribute(element)
+        let frame = frameAttribute(element).map {
+            UIBRect(
+                x: $0.origin.x - coordinateOrigin.x,
+                y: $0.origin.y - coordinateOrigin.y,
+                width: $0.size.width,
+                height: $0.size.height
+            )
+        }
         let actions = actionNames(element)
         let state = ElementState(
             isEnabled: boolAttribute(element, kAXEnabledAttribute) ?? true,
@@ -136,6 +185,7 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
                 parentIndex: index,
                 depth: depth + 1,
                 snapshotID: snapshotID,
+                coordinateOrigin: coordinateOrigin,
                 options: options,
                 visited: &visited,
                 elements: &elements,
@@ -215,6 +265,21 @@ public final class AccessibilityTreeReader: @unchecked Sendable {
         else { return nil }
 
         return UIBRect(x: position.x, y: position.y, width: size.width, height: size.height)
+    }
+
+    private func windowMatchScore(_ frame: UIBRect?, target: UIBRect) -> Double {
+        guard let frame else { return 0 }
+        let left = max(frame.origin.x, target.origin.x)
+        let top = max(frame.origin.y, target.origin.y)
+        let right = min(frame.origin.x + frame.size.width, target.origin.x + target.size.width)
+        let bottom = min(frame.origin.y + frame.size.height, target.origin.y + target.size.height)
+        let intersection = max(0, right - left) * max(0, bottom - top)
+        let frameArea = max(1, frame.size.width * frame.size.height)
+        let targetArea = max(1, target.size.width * target.size.height)
+        let overlap = intersection / max(frameArea, targetArea)
+        let originDistance = abs(frame.origin.x - target.origin.x) + abs(frame.origin.y - target.origin.y)
+        let sizeDistance = abs(frame.size.width - target.size.width) + abs(frame.size.height - target.size.height)
+        return overlap * 1_000 - originDistance - sizeDistance
     }
 
     private func actionNames(_ element: AXUIElement) -> [String] {

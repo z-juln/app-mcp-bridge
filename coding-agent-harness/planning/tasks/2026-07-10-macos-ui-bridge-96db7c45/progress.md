@@ -256,6 +256,15 @@
 - 下一步：用户在一次真实 Cursor/WorkBuddy 操作中确认菜单列表外观，再完成最终收口。
 - 证据：`screenshot:TARGET:/tmp/macos-ui-bridge-visible.png:badge and gradient cursor visible; /tmp/macos-ui-bridge-hidden.png:both overlays dismissed`
 
+### 2026-07-13 - 后台提示与窗口范围修复
+
+- 用户反馈：WorkBuddy 读取访达时没有看到访达页面，当前屏幕却凭空出现“操作中”；任务完成后菜单没有“正在操控 访达”。结果中的搜索控件坐标也超出所选窗口。
+- 根因：提示面板跨桌面显示且未判断目标是否最前；菜单记录只保留 15 秒；快照从应用根节点读取，混入同一进程其他窗口；辅助功能的屏幕坐标被误当成窗口内坐标。
+- 做了什么：后台目标只写入菜单、不再显示悬浮提示；菜单保留改为 90 秒；快照先匹配指定 `AXWindow` 并只遍历该窗口；控件坐标统一转换为窗口内坐标。
+- 验证：WorkBuddy 目标窗口快照返回 9 个窗口内元素，越界数量为 0；前台 pid 为 Cursor、目标 pid 为访达时注入真实窗口状态，当前屏幕截图没有出现紫色提示；访达当前没有普通窗口，服务不再把桌面和菜单小窗当作可操作页面。
+- 下一步：用户打开一个普通访达窗口，用 WorkBuddy 重跑只读提示，确认菜单在 90 秒内显示“正在操控 访达”。
+- 证据：`command:TARGET:/v1/snapshots:window-scoped WorkBuddy snapshot outOfBoundsCount=0; screenshot:TARGET:/tmp/macos-ui-bridge-hidden-finder.png:no overlay for background Finder`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

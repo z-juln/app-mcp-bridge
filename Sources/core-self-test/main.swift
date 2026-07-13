@@ -35,6 +35,7 @@ do {
     )
     var elementCount = 0
     var quality = "not-tested"
+    var scopedElementCount = 0
     if permissions.accessibilityTrusted, let frontmost = applications.first(where: \.isFrontmost) {
         let result = try AccessibilityTreeReader().readApplication(
             pid: frontmost.pid,
@@ -45,6 +46,24 @@ do {
         try expect(result.elements.map(\.index) == Array(result.elements.indices), "Element indexes are not stable and contiguous")
         elementCount = result.elements.count
         quality = result.treeQuality.rawValue
+
+        if let window = WindowDiscovery.listWindows(pid: frontmost.pid).first(where: { $0.isVisible && $0.isCapturable }) {
+            let snapshot = try await AutomationRuntime().createSnapshot(
+                pid: frontmost.pid,
+                windowID: window.windowID,
+                maxElements: 200,
+                maxDepth: 12
+            )
+            let tolerance = 4.0
+            let outOfBounds = snapshot.elements.compactMap(\.frameInWindow).filter { frame in
+                frame.origin.x < -tolerance
+                    || frame.origin.y < -tolerance
+                    || frame.origin.x + frame.size.width > snapshot.windowBounds.size.width + tolerance
+                    || frame.origin.y + frame.size.height > snapshot.windowBounds.size.height + tolerance
+            }
+            try expect(outOfBounds.isEmpty, "Window snapshot returned elements outside the selected window")
+            scopedElementCount = snapshot.elements.count
+        }
     }
 
     let now = Date()
@@ -85,7 +104,7 @@ do {
         captureBytes = capture.pngData.count
     }
 
-    print("core-self-test: apps=\(applications.count) windows=\(windows.count) accessibility=\(permissions.accessibilityTrusted) elements=\(elementCount) quality=\(quality) captureBytes=\(captureBytes)")
+    print("core-self-test: apps=\(applications.count) windows=\(windows.count) accessibility=\(permissions.accessibilityTrusted) elements=\(elementCount) scopedElements=\(scopedElementCount) quality=\(quality) captureBytes=\(captureBytes)")
 } catch {
     fputs("core-self-test failed: \(error)\n", stderr)
     exit(1)
