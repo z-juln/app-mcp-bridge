@@ -16,9 +16,7 @@ final class AppShell: NSObject {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
 
-        let menuBarIcon = (appIcon.copy() as? NSImage) ?? appIcon
-        menuBarIcon.size = NSSize(width: 19, height: 19)
-        menuBarIcon.isTemplate = false
+        let menuBarIcon = Self.makeMenuBarIcon()
         statusItem.button?.image = menuBarIcon
         statusItem.button?.imageScaling = .scaleProportionallyDown
         statusItem.button?.toolTip = "macOS UI Bridge"
@@ -80,6 +78,22 @@ final class AppShell: NSObject {
         }
         image.unlockFocus()
         image.isTemplate = false
+        return image
+    }
+
+    private static func makeMenuBarIcon() -> NSImage {
+        let canvas = NSSize(width: 38, height: 38)
+        let image = NSImage(size: canvas)
+        image.lockFocus()
+        NSColor.black.setStroke()
+        for rect in [NSRect(x: 3, y: 17, width: 19, height: 14), NSRect(x: 16, y: 7, width: 19, height: 14)] {
+            let path = NSBezierPath(roundedRect: rect, xRadius: 3.5, yRadius: 3.5)
+            path.lineWidth = 3.5
+            path.stroke()
+        }
+        image.unlockFocus()
+        image.size = NSSize(width: 19, height: 19)
+        image.isTemplate = true
         return image
     }
 }

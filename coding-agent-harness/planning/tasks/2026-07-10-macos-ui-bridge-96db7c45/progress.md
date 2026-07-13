@@ -152,6 +152,13 @@
 - 下一步：用户确认后重新提交最终审查。
 - 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:shared Dock and status icon build passed`
 
+### 2026-07-13 - 菜单栏透明图标
+
+- 做了什么：程序坞保留蓝色完整图标；菜单栏改为同源连接窗口标记的透明单色模板，自动适配浅色/深色背景。
+- 验证：debug/release 构建、签名、重装和健康检查通过；等待用户肉眼确认。
+- 下一步：用户确认后重新提交最终审查。
+- 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:transparent adaptive status icon build passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。
