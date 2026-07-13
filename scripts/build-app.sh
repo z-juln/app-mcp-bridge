@@ -11,17 +11,24 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$ROOT/.build/release/macos-ui-bridge" "$APP/Contents/MacOS/macos-ui-bridge"
 cp "$ROOT/Resources/App-Info.plist" "$APP/Contents/Info.plist"
-# Keep a stable identity across local rebuilds. Without an explicit designated
-# requirement, ad-hoc signing makes TCC bind grants to the executable hash.
-codesign --force --deep --sign - \
-  --identifier com.juln.macos-ui-bridge \
-  --requirements '=designated => identifier "com.juln.macos-ui-bridge"' \
-  "$APP"
+
+signing=(${(f)"$($ROOT/scripts/ensure-local-signing-identity.sh)"})
+keychain=${signing[1]}
+identity=${signing[2]}
+original_keychains=(${(f)"$(security list-keychains -d user | sed 's/^[[:space:]]*"//; s/"$//')"})
+restore_keychains() {
+  security list-keychains -d user -s "${original_keychains[@]}"
+}
+trap restore_keychains EXIT
+security list-keychains -d user -s "$keychain" "${original_keychains[@]}"
+codesign --force --deep --sign "$identity" --identifier com.juln.macos-ui-bridge "$APP"
+restore_keychains
+trap - EXIT
 
 plutil -lint "$APP/Contents/Info.plist"
 codesign --verify --deep --strict --verbose=1 "$APP"
-requirement=$(codesign -d -r- "$APP" 2>&1)
-[[ "$requirement" == *'designated => identifier "com.juln.macos-ui-bridge"'* ]] || {
+requirement=$(codesign -d -r- --verbose=3 "$APP" 2>&1)
+[[ "$requirement" == *'Authority=macOS UI Bridge Local Development'* ]] || {
   echo "App signing requirement is not stable: $requirement" >&2
   exit 1
 }

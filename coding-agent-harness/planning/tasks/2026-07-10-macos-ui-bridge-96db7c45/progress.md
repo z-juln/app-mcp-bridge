@@ -167,6 +167,20 @@
 - 下一步：安装新版、重新授权一次，并连续覆盖安装验证权限保持。
 - 证据：`command:TARGET:scripts/build-app.sh:stable designated requirement asserted`
 
+### 2026-07-13 - 录屏权限正式申请
+
+- 做了什么：“检查系统权限”会先调用 macOS 的正式授权申请，再复查并显示补充引导；解决只打开设置但 App 未登记、列表里找不到的问题。权限检查不再改变 App 的程序坞显示模式。
+- 验证：构建与既有权限分支自检通过；实际系统提示与登记需要用户在安装版菜单中点击一次确认。
+- 下一步：用户完成首次授权后，连续覆盖安装验证权限保持。
+- 证据：`diff:TARGET:Sources/UIBridgeMacCore/PermissionGuidance.swift:request before settings guidance`
+
+### 2026-07-13 - 本机长期签名身份
+
+- 做了什么：替换仍会随版本失效的临时签名，为开发版自动创建并长期复用一个本机专用身份；构建时临时加入签名搜索范围，结束后恢复用户原有设置。
+- 验证：在临时钥匙串原型中连续签名成功，生成的 App 身份由同一证书固定，不再依赖可执行文件内容指纹。
+- 下一步：安装长期身份版，用户重新授权一次后连续覆盖安装验证。
+- 证据：`command:TARGET:scripts/ensure-local-signing-identity.sh:certificate-backed signing prototype passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

@@ -8,6 +8,8 @@ public enum PermissionGuidance {
     private static var presentedKinds = Set<String>()
 
     public static func presentIfNeeded(for _: PermissionStatus) {
+        requestMissingPermissions(for: PermissionInspector.current())
+
         let currentStatus = PermissionInspector.current()
         let missing = missingKinds(for: currentStatus)
         guard !missing.isEmpty else { return }
@@ -15,7 +17,6 @@ public enum PermissionGuidance {
         let key = missing.joined(separator: ",")
         guard presentedKinds.insert(key).inserted else { return }
 
-        NSApplication.shared.setActivationPolicy(.accessory)
         NSApplication.shared.activate(ignoringOtherApps: true)
 
         let alert = NSAlert()
@@ -27,7 +28,6 @@ public enum PermissionGuidance {
 
         if alert.runModal() == .alertFirstButtonReturn,
            let url = settingsURL(for: missing[0]) {
-            registerWithSystem(for: currentStatus)
             NSWorkspace.shared.open(url)
         }
     }
@@ -44,7 +44,7 @@ public enum PermissionGuidance {
         return URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)")
     }
 
-    private static func registerWithSystem(for status: PermissionStatus) {
+    private static func requestMissingPermissions(for status: PermissionStatus) {
         if !status.accessibilityTrusted {
             let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
             _ = AXIsProcessTrustedWithOptions(options)
