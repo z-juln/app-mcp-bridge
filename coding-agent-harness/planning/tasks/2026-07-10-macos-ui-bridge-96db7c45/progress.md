@@ -265,6 +265,16 @@
 - 下一步：用户打开一个普通访达窗口，用 WorkBuddy 重跑只读提示，确认菜单在 90 秒内显示“正在操控 访达”。
 - 证据：`command:TARGET:/v1/snapshots:window-scoped WorkBuddy snapshot outOfBoundsCount=0; screenshot:TARGET:/tmp/macos-ui-bridge-hidden-finder.png:no overlay for background Finder`
 
+### 2026-07-13 - 菜单操控记录可恢复
+
+- 用户反馈：WorkBuddy 任务完成后，90 秒内打开菜单仍未看到“正在操控 访达”。
+- 根因：菜单记录虽然计划保留 90 秒，但接收端与短时悬浮提示共用了 3 秒新鲜度门槛；App 短暂忙碌或重启后会丢弃本应继续展示的菜单记录。
+- 做了什么：拆分短时视觉提示和菜单记录的有效期；悬浮提示仍只响应 3 秒内的新事件，菜单记录改为按事件原始时间保留 90 秒，并能从本机状态记录恢复。
+- 验证：安装版在后台读取访达桌面窗口后写入“访达”记录，未在当前前台应用显示悬浮提示；记录超过 3 秒后重启 App，服务恢复正常且 90 秒记录仍可读取。debug/release 构建和协议自检通过。
+- 限制：当前 Computer Use 无法读取或点击无主窗口 App 的状态栏菜单；菜单外观仍需用户自然打开时确认，不再继续反复尝试该受限路线。
+- 下一步：用户在一次 WorkBuddy 读取结束后的 90 秒内打开 Bridge 菜单，确认显示“正在操控 访达”。
+- 证据：`command:TARGET:Sources/macos-ui-bridge/ControlOverlayController.swift:delayed activity survives app restart and health remains ok`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

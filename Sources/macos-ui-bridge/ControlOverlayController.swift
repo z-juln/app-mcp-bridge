@@ -11,6 +11,9 @@ struct ControlledTarget: Sendable {
 
 @MainActor
 final class ControlOverlayController: NSObject {
+    private static let targetRetention: TimeInterval = 90
+    private static let visualFeedbackFreshness: TimeInterval = 3
+
     private struct TargetState {
         var name: String
         var lastSeen: Date
@@ -52,7 +55,8 @@ final class ControlOverlayController: NSObject {
     }
 
     var activeTargets: [ControlledTarget] {
-        let cutoff = Date().addingTimeInterval(-90)
+        recoverLatestTarget()
+        let cutoff = Date().addingTimeInterval(-Self.targetRetention)
         return targets.compactMap { pid, state in
             guard state.lastSeen >= cutoff else { return nil }
             return ControlledTarget(pid: pid, name: state.name, lastSeen: state.lastSeen)
@@ -69,10 +73,32 @@ final class ControlOverlayController: NSObject {
 
     private func consumeLatest() {
         guard let record = AutomationActivityCenter.latest(),
-              record.eventID != lastEventID,
-              record.createdAt > Date().addingTimeInterval(-3) else { return }
+              record.eventID != lastEventID else { return }
         lastEventID = record.eventID
-        display(record)
+        guard retainTarget(record) else { return }
+        if record.createdAt > Date().addingTimeInterval(-Self.visualFeedbackFreshness) {
+            display(record)
+        }
+    }
+
+    private func recoverLatestTarget() {
+        guard let record = AutomationActivityCenter.latest() else { return }
+        _ = retainTarget(record)
+    }
+
+    @discardableResult
+    private func retainTarget(_ record: AutomationActivityRecord) -> Bool {
+        guard record.createdAt > Date().addingTimeInterval(-Self.targetRetention) else { return false }
+        let badgePanel = targets[record.pid]?.badgePanel ?? Self.makeBadgePanel()
+        var state = targets[record.pid] ?? TargetState(
+            name: record.appName,
+            lastSeen: record.createdAt,
+            badgePanel: badgePanel
+        )
+        state.name = record.appName
+        state.lastSeen = max(state.lastSeen, record.createdAt)
+        targets[record.pid] = state
+        return true
     }
 
     private func display(_ record: AutomationActivityRecord) {
@@ -87,9 +113,9 @@ final class ControlOverlayController: NSObject {
         )
         let screenBounds = Self.appKitRect(fromQuartz: quartzBounds)
         let badgePanel = targets[pid]?.badgePanel ?? Self.makeBadgePanel()
-        var state = targets[pid] ?? TargetState(name: appName, lastSeen: Date(), badgePanel: badgePanel)
+        var state = targets[pid] ?? TargetState(name: appName, lastSeen: record.createdAt, badgePanel: badgePanel)
         state.name = appName
-        state.lastSeen = Date()
+        state.lastSeen = max(state.lastSeen, record.createdAt)
         state.hideBadge?.invalidate()
 
         let targetIsFrontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier == pid
