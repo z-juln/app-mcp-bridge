@@ -138,6 +138,13 @@
 - 下一步：安装最终版本，完成审查、walkthrough 和任务收口。
 - 证据：`command:TARGET:Sources/UIBridgeServer/MCPHTTPHandler.swift:authenticated HTTP MCP roundtrip passed`
 
+### 2026-07-13 - 程序坞与菜单栏入口
+
+- 做了什么：App 改为程序坞可见，运行时设置专属蓝色图标；增加菜单栏常驻入口，提供运行状态、权限检查、复制 MCP 配置和退出；登录启动改由系统 App 启动方式执行，并运行正式 macOS 事件循环。
+- 验证：debug/release 构建和安装通过；系统识别 bundle、显示名和正常 App 类型，Computer Use 可发现运行中的 macOS UI Bridge，健康接口正常。无主窗口 App 的菜单栏内容无法被 Computer Use 读取，等待用户肉眼确认。
+- 下一步：用户确认程序坞和菜单栏显示后重新提交最终审查。
+- 证据：`command:TARGET:Sources/macos-ui-bridge/AppShell.swift:installed app identity and event loop passed`
+
 ## 残余
 
 - 完整 Xcode 未安装，标准 Xcode 测试目标与正式签名/公证暂不可执行；Swift 自检与真实应用回归可继续。

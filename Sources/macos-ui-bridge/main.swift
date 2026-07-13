@@ -5,6 +5,8 @@ import UIBridgeServer
 
 @main
 enum UIBridgeCommand {
+    @MainActor private static var appShell: AppShell?
+
     static func main() async throws {
         let arguments = Array(CommandLine.arguments.dropFirst())
         let executablePath = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL.path
@@ -37,9 +39,8 @@ enum UIBridgeCommand {
             let token = try tokenStore.loadOrCreate()
             let server = try await HTTPServer.make(port: 8765, token: token)
             try server.start()
-            while !Task.isCancelled {
-                try await Task.sleep(for: .seconds(3_600))
-            }
+            appShell = AppShell(token: token)
+            appShell?.run()
         case "mcp":
             try await MCPBridge.runStdio()
         case "start":

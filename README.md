@@ -22,7 +22,8 @@ python3 skills/macos-ui-control/scripts/self_test.py
 安装位置为 `/Applications/macOS UI Bridge.app`。首次打开会提示缺少的系统权限；
 选择“前往设置”后，App 会以自己的名称登记到对应权限列表。
 
-App 没有主窗口，启动后在后台提供服务。可用下面的命令确认：
+App 没有主窗口，启动后在程序坞和菜单栏显示图标。菜单栏可检查权限、复制 MCP
+连接配置或退出服务。可用下面的命令确认后台服务：
 
 ```bash
 curl http://127.0.0.1:8765/health

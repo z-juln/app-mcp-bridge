@@ -40,7 +40,8 @@ let package = Package(
         ),
         .executableTarget(
             name: "macos-ui-bridge",
-            dependencies: ["UIBridgeProtocol", "UIBridgeMacCore", "UIBridgeServer", "UIBridgeMCP"]
+            dependencies: ["UIBridgeProtocol", "UIBridgeMacCore", "UIBridgeServer", "UIBridgeMCP"],
+            swiftSettings: [.unsafeFlags(["-parse-as-library"])]
         ),
         .executableTarget(
             name: "protocol-self-test",

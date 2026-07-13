@@ -23,7 +23,7 @@
     <key>LSMinimumSystemVersion</key>
     <string>14.4</string>
     <key>LSUIElement</key>
-    <true/>
+    <false/>
     <key>NSAccessibilityUsageDescription</key>
     <string>用于读取和操作你明确指定的 macOS 应用界面。</string>
     <key>NSScreenCaptureUsageDescription</key>
