@@ -17,6 +17,9 @@ public struct AutomationActivityRecord: Codable, Sendable {
     public let windowID: UInt32
     public let windowBounds: UIBRect
     public let pointer: UIBPoint?
+    public let source: String?
+    public let action: String?
+    public let risk: String?
 }
 
 extension AutomationActivityPhase: Codable {}
@@ -38,9 +41,13 @@ public enum AutomationActivityCenter {
             appName: appName,
             windowID: snapshot.windowID,
             windowBounds: snapshot.windowBounds,
-            pointer: pointer
+            pointer: pointer,
+            source: nil,
+            action: phase == .observed ? "读取界面" : (phase == .actionStarted ? "执行操作" : "验证结果"),
+            risk: nil
         )
         persist(record)
+        persistHistory(record)
         var info: [String: Any] = [
             "phase": phase.rawValue,
             "pid": Int(snapshot.pid),
@@ -68,10 +75,22 @@ public enum AutomationActivityCenter {
         return try? JSONDecoder().decode(AutomationActivityRecord.self, from: data)
     }
 
+    public static func recent(since: Date = Date().addingTimeInterval(-90), limit: Int = 100) -> [AutomationActivityRecord] {
+        guard let data = try? Data(contentsOf: historyURL),
+              let records = try? JSONDecoder().decode([AutomationActivityRecord].self, from: data) else {
+            return latest().map { $0.createdAt >= since ? [$0] : [] } ?? []
+        }
+        return Array(records.filter { $0.createdAt >= since }.suffix(max(1, limit)))
+    }
+
     private static var stateURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/app-mcp-bridge", isDirectory: true)
             .appendingPathComponent("activity.json")
+    }
+
+    private static var historyURL: URL {
+        stateURL.deletingLastPathComponent().appendingPathComponent("activity-history.json")
     }
 
     private static func persist(_ record: AutomationActivityRecord) {
@@ -85,6 +104,23 @@ public enum AutomationActivityCenter {
             try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: stateURL.path)
         } catch {
             // Visible feedback is best-effort and must never fail the desktop action.
+        }
+    }
+
+    private static func persistHistory(_ record: AutomationActivityRecord) {
+        do {
+            try FileManager.default.createDirectory(
+                at: historyURL.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            let existing = (try? Data(contentsOf: historyURL))
+                .flatMap { try? JSONDecoder().decode([AutomationActivityRecord].self, from: $0) } ?? []
+            let cutoff = Date().addingTimeInterval(-300)
+            let records = Array((existing.filter { $0.createdAt >= cutoff } + [record]).suffix(200))
+            try JSONEncoder().encode(records).write(to: historyURL, options: [.atomic])
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: historyURL.path)
+        } catch {
+            // Debug history is bounded and best-effort; actions must not depend on it.
         }
     }
 }

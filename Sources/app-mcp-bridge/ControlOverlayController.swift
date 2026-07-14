@@ -6,6 +6,11 @@ import UIBridgeProtocol
 struct ControlledTarget: Sendable {
     let pid: Int32
     let name: String
+    let windowID: UInt32
+    let windowBounds: UIBRect
+    let pointer: UIBPoint?
+    let phase: AutomationActivityPhase
+    let action: String
     let lastSeen: Date
 }
 
@@ -16,6 +21,7 @@ final class ControlOverlayController: NSObject {
 
     private struct TargetState {
         var name: String
+        var record: AutomationActivityRecord
         var lastSeen: Date
         var badgePanel: NSPanel
         var cursorPanel: NSPanel?
@@ -68,7 +74,16 @@ final class ControlOverlayController: NSObject {
         let cutoff = Date().addingTimeInterval(-Self.targetRetention)
         return targets.compactMap { pid, state in
             guard state.lastSeen >= cutoff else { return nil }
-            return ControlledTarget(pid: pid, name: state.name, lastSeen: state.lastSeen)
+            return ControlledTarget(
+                pid: pid,
+                name: state.name,
+                windowID: state.record.windowID,
+                windowBounds: state.record.windowBounds,
+                pointer: state.record.pointer,
+                phase: state.record.phase,
+                action: state.record.action ?? "读取界面",
+                lastSeen: state.lastSeen
+            )
         }.sorted { $0.lastSeen > $1.lastSeen }
     }
 
@@ -116,10 +131,12 @@ final class ControlOverlayController: NSObject {
         let badgePanel = targets[record.pid]?.badgePanel ?? Self.makeBadgePanel()
         var state = targets[record.pid] ?? TargetState(
             name: record.appName,
+            record: record,
             lastSeen: record.createdAt,
             badgePanel: badgePanel
         )
         state.name = record.appName
+        state.record = record
         state.lastSeen = max(state.lastSeen, record.createdAt)
         targets[record.pid] = state
         return true
@@ -152,8 +169,9 @@ final class ControlOverlayController: NSObject {
         )
         let screenBounds = Self.appKitRect(fromQuartz: quartzBounds)
         let badgePanel = targets[pid]?.badgePanel ?? Self.makeBadgePanel()
-        var state = targets[pid] ?? TargetState(name: appName, lastSeen: record.createdAt, badgePanel: badgePanel)
+        var state = targets[pid] ?? TargetState(name: appName, record: record, lastSeen: record.createdAt, badgePanel: badgePanel)
         state.name = appName
+        state.record = record
         state.lastSeen = max(state.lastSeen, record.createdAt)
         state.hideBadge?.invalidate()
 

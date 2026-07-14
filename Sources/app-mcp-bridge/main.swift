@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import UIBridgeMacCore
 import UIBridgeMCP
@@ -65,6 +66,21 @@ enum UIBridgeCommand {
                 argumentsJSON: arguments.indices.contains(2) && !arguments[2].hasPrefix("--") ? arguments[2] : nil
             )
             print(String(decoding: data, as: UTF8.self))
+        case "show":
+            try FileManager.default.createDirectory(
+                at: AppShell.showSettingsRequestURL.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            let requestedSection = arguments.indices.contains(1) ? arguments[1] : "overview"
+            try Data(requestedSection.utf8).write(to: AppShell.showSettingsRequestURL, options: .atomic)
+            NSRunningApplication.runningApplications(withBundleIdentifier: "com.juln.app-mcp-bridge")
+                .first?
+                .activate(options: [.activateAllWindows])
+            DistributedNotificationCenter.default().postNotificationName(
+                AppShell.showSettingsNotification,
+                object: nil,
+                deliverImmediately: true
+            )
         case "start":
             let port = parsePort(arguments) ?? 8765
             let state = ServiceStateStore()
@@ -96,7 +112,7 @@ enum UIBridgeCommand {
                 print("not running")
             }
         default:
-            print("app-mcp-bridge <start|stop|serve|mcp|call|status|permissions|token|version>")
+            print("app-mcp-bridge <start|stop|serve|mcp|call|show|status|permissions|token|version>")
         }
     }
 

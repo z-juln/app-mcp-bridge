@@ -11,6 +11,14 @@
 - 下一步：实现设置窗口外壳和真实状态总览。
 - 证据：`diff:TARGET:coding-agent-harness/planning/tasks/2026-07-14-item-65db687f/:approved scope recorded`
 
+### 2026-07-14 14:05 - 设置窗口与实时画面骨架
+
+- 做了什么：增加原生设置窗口、七个栏目、菜单栏与程序坞打开入口；接入真实服务、权限、活动记录；实时页支持多应用缩略图、大画面、指针标记、事件和停止入口，截图只在页面可见时保存在内存。
+- 验证结果：Debug/Release 构建和安装通过；安装版窗口 1080×720 可见，辅助功能树完整读取 62 个元素；真实截图确认总览布局正常，七个栏目均存在；实时页活动出现后进入画面加载路径。
+- 下一步：完成实时刷新稳定性检查，再接入应用访问规则和危险动作二次确认。
+- 证据：`screenshot:TARGET:/tmp/app-mcp-bridge-settings.png:installed native settings overview rendered correctly`
+- 证据：`command:TARGET:Sources/app-mcp-bridge/:swift build and installed window AX snapshot passed`
+
 ## 残余
 
 - 实时画面刷新频率与资源占用需要在安装版实测后定值。

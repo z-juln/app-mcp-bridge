@@ -4,14 +4,22 @@ import UIBridgeMacCore
 
 @MainActor
 final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
+    static let showSettingsNotification = Notification.Name("com.juln.app-mcp-bridge.show-settings")
+    static let showSettingsRequestURL = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/app-mcp-bridge", isDirectory: true)
+        .appendingPathComponent("show-settings.request")
     private let statusItem: NSStatusItem
     private let token: String
     private var overlayController: ControlOverlayController!
+    private let settingsModel: BridgeSettingsModel
+    private var settingsController: SettingsWindowController!
     private var statusRefreshTimer: Timer?
     private var statusSignature: String?
+    private var canOpenOnActivation = false
 
     init(token: String) {
         self.token = token
+        settingsModel = BridgeSettingsModel(token: token)
         NSApplication.shared.setActivationPolicy(.regular)
         let appIcon = Self.makeAppIcon()
         NSApplication.shared.applicationIconImage = appIcon
@@ -19,6 +27,7 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
         overlayController = ControlOverlayController()
+        settingsController = SettingsWindowController(model: settingsModel)
 
         updateStatusItem(for: overlayController.activeTargets)
         let menu = makeMenu()
@@ -26,10 +35,17 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.menu = menu
         overlayController.onTargetsChanged = { [weak self] in
             self?.refreshMenu()
+            self?.settingsModel.refresh(targets: self?.overlayController.activeTargets ?? [])
         }
         overlayController.startPolling()
         startStatusRefreshPolling()
         NSApplication.shared.delegate = self
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(receiveShowSettings),
+            name: Self.showSettingsNotification,
+            object: nil
+        )
     }
 
     func run() {
@@ -38,6 +54,23 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         PermissionGuidance.presentIfNeeded(for: PermissionInspector.current())
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.canOpenOnActivation = true
+        }
+    }
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        guard canOpenOnActivation, settingsController.window?.isVisible != true else { return }
+        showSettings()
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        showSettings()
+        return true
+    }
+
+    @objc private func receiveShowSettings() {
+        showSettings()
     }
 
     private func startStatusRefreshPolling() {
@@ -54,6 +87,12 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func refreshStatusItemTimer() {
+        if FileManager.default.fileExists(atPath: Self.showSettingsRequestURL.path) {
+            let requested = (try? String(contentsOf: Self.showSettingsRequestURL, encoding: .utf8))
+            try? FileManager.default.removeItem(at: Self.showSettingsRequestURL)
+            let section = requested.flatMap(SettingsSection.init(rawValue:))
+            settingsController.show(section: section, targets: overlayController.activeTargets)
+        }
         updateStatusItem(for: overlayController.activeTargets)
     }
 
@@ -83,6 +122,8 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func populateMenu(_ menu: NSMenu) {
+        menu.addItem(item(title: "打开 App MCP Bridge…", action: #selector(showSettings)))
+        menu.addItem(.separator())
         let status = NSMenuItem(title: "服务运行中 · 127.0.0.1:8765", action: nil, keyEquivalent: "")
         status.isEnabled = false
         menu.addItem(status)
@@ -93,9 +134,9 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
             heading.isEnabled = false
             menu.addItem(heading)
             for target in targets {
-                let active = NSMenuItem(title: "  正在操控 \(target.name)", action: nil, keyEquivalent: "")
-                active.isEnabled = false
-                active.image = NSImage(systemSymbolName: "cursorarrow.rays", accessibilityDescription: nil)
+                let active = NSMenuItem(title: "  正在操控 \(target.name)", action: #selector(showLiveControl), keyEquivalent: "")
+                active.target = self
+                active.image = NSRunningApplication(processIdentifier: target.pid)?.icon
                 menu.addItem(active)
             }
         }
@@ -114,6 +155,14 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func checkPermissions() {
         PermissionGuidance.presentIfNeeded(for: PermissionInspector.current(), showSuccess: true)
+    }
+
+    @objc private func showSettings() {
+        settingsController.show(targets: overlayController.activeTargets)
+    }
+
+    @objc private func showLiveControl() {
+        settingsController.show(section: .liveControl, targets: overlayController.activeTargets)
     }
 
     @objc private func copyConnection() {
