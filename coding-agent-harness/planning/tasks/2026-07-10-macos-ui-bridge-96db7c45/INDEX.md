@@ -31,9 +31,9 @@ Task Contract: harness-task/v1
 | Reviewer Email | zjl5@meitu.com |
 | Confirm Text | 2026-07-10-macos-ui-bridge-96db7c45 |
 | Evidence Checked | TARGET:coding-agent-harness/planning/tasks/2026-07-10-macos-ui-bridge-96db7c45/review.md |
-| Review Commit SHA | pending |
+| Review Commit SHA | 8790a2dffba96cd4d5d5c134f956e2e2e36b80ad |
 | Audit Source | native-index |
-| Audit Status | commit-pending |
+| Audit Status | committed |
 | Exception Reason | n/a |
 | Message | bulk confirmed from dashboard workbench |
 | Migration Status | native |
