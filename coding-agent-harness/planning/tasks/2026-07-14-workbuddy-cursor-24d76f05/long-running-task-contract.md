@@ -2,36 +2,40 @@
 
 ## 目标
 
-[一句话说明本轮要完整收掉的主问题。只保留一个主目标。]
+让 WorkBuddy 与 Cursor 都通过 App MCP Bridge 完成一次隔离、可回读验证的真实写入。
 
 ## 范围
 
 ### 范围内
 
-- [允许修改的目录、模块、能力面]
+- `scripts/` 的安全验收夹具。
+- `skills/macos-ui-control/` 与客户端接入文档。
+- 为修复真实客户端链路所必需的 Bridge 代码与测试。
+- WorkBuddy、Cursor 和独立 TextEdit 测试会话。
 
 ### 范围外
 
-- [本轮明确不做的事项]
+- 用户现有文稿和第三方消息。
+- Windows、公开签名、公证和其他应用专项适配。
 
 ### 共享文件 / 冲突风险
 
-- [可能与其他任务冲突的共享文件；如无写“无”]
+- 客户端本机配置只做必要更新并保留备份；Bridge 代码由 coordinator 独占修改。
 
 ## 主调用入口（Primary Caller / Entry）
 
-- 主调用方（Primary caller）：[CLI / 本地 agent / UI / API / automation / integration / 其他]
-- 本任务必须支持的入口：[列出]
-- 明确不要求的入口：[列出]
+- 主调用方（Primary caller）：WorkBuddy UI、Cursor UI
+- 本任务必须支持的入口：WorkBuddy Streamable HTTP MCP、Cursor 当前配置的 MCP。
+- 明确不要求的入口：Windows 客户端、第三方远程客户端。
 
 ## 执行授权（Execution Permission）
 
-- 是否允许连续执行（Continuous execution）：[allowed / not allowed]
-- 是否允许每轮后不再询问直接继续：[yes / no]
-- 是否允许启动审查 agent / 子代理：[yes / no]
-- 是否需要审查报告：[yes / no；如 yes，必须写 `review.md`]
+- 是否允许连续执行（Continuous execution）：allowed
+- 是否允许每轮后不再询问直接继续：yes
+- 是否允许启动审查 agent / 子代理：no
+- 是否需要审查报告：no
 - 仍需人工批准的动作：
-  - [高风险操作，例如 destructive migration / production deploy / secret change]
+  - 向第三方发送消息、覆盖用户现有内容、删除非测试数据。
 
 ## 必需循环
 
@@ -49,12 +53,12 @@
 
 最低循环次数或无重要发现要求：
 
-- [例如：至少 2 轮；或自审 + 审查者均无重要发现]
+- 至少两轮：WorkBuddy 一轮、Cursor 一轮；任一修复后重跑对应客户端。
 
 ## 审查者 / 子代理合同（Reviewer / Subagent）
 
-- 审查者角色（Reviewer role）：[只读审查 / 改代码 worker / 测试验证者]
-- 审查范围（Reviewer scope）：[文件 / 模块 / 问题域]
+- 审查者角色（Reviewer role）：self
+- 审查范围（Reviewer scope）：客户端写入链路、隔离性、写后验证与清理。
 - 如果是 code-change worker：
   - Worktree path：[路径 / 不适用]
   - Branch：[分支 / 不适用]
@@ -62,37 +66,31 @@
   - 交接前提交（Commit before handoff）：[yes / no / 不适用]
   - 交接必须包含：[worktree path / branch / commit SHA / checks / residual risks]
 - Reviewer 必须报告：
-  - [缺陷]
-  - [回归]
-  - [缺失测试]
-  - [未验证假设]
-  - [`review.md` 中的重要发现或无重要发现声明]
+  - 缺陷、回归、缺失测试和未验证假设。
 - Reviewer 不得：
-  - [越权改动 / 重写不相关模块 / 擅自扩大 scope]
+  - 改动用户现有内容、发送外部消息、擅自扩大到其他平台。
 
 ## 证据
 
 完成前必需证据：
 
-- [ ] [lint / typecheck / build command]
-- [ ] [unit / integration / e2e test command]
-- [ ] [本地冒烟命令]
-- [ ] [浏览器 / UI / 人工检查]
-- [ ] [线上环境冒烟]
-- [ ] [审查者无重要发现]
-- [ ] [如要求审查，`review.md` 已完成]
-- [ ] [walkthrough / PR / 发布说明]
+- [ ] `swift build`
+- [ ] Bridge 与 Skill 自检
+- [ ] WorkBuddy 真实写入并回读
+- [ ] Cursor 真实写入并回读
+- [ ] Harness check
+- [ ] 自审无 open P0/P1
+- [ ] walkthrough 和 progress 已更新
 
 ## 完成条件（Stop Condition）
 
 任务只有在以下条件满足后才可停止并声明完成：
 
-- [ ] [关键路径通过]
-- [ ] [必需测试或回归门禁通过]
-- [ ] [runtime / console / request 错误已清除，或已记录为非阻塞残余]
-- [ ] [如要求审查者，审查者无 open 重要发现]
-- [ ] [如要求审查，`review.md` 无 open P0/P1 发现]
-- [ ] [残余风险已记录，且不阻塞本轮目标]
+- [ ] 两个客户端各自完成真实写入和回读一致。
+- [ ] 构建、自检和 Harness 检查通过。
+- [ ] 客户端与 Bridge 错误已清除，或记录为非阻塞残余。
+- [ ] 自审无 open P0/P1。
+- [ ] 测试内容和窗口已清理。
 
 ## 暂停条件（Pause Conditions）
 
