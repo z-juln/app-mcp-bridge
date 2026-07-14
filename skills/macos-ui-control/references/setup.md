@@ -57,6 +57,23 @@ For the local Cursor and WorkBuddy installations, configure both without printin
 The script preserves every existing server and creates a backup beside each changed file.
 WorkBuddy's own **自定义连接器 → 配置 MCP** screen reports the same file at `~/.workbuddy/mcp.json`.
 
+## Real client write acceptance
+
+Do not treat a visible tool list or a read-only snapshot as proof that a client can automate an app. Use a new, unsaved TextEdit document containing no user data, then run this prompt separately in Cursor and WorkBuddy:
+
+```text
+Use only app-mcp-bridge. Run a real write test against the currently open blank TextEdit window. Call apps_list and windows_list, get a fresh snapshot, find the editable document text area, call plan_check for set_value with exact text APP_MCP_BRIDGE_CLIENT_TEST, then call action_run. Use the returned new_snapshot_id to read again and verify the document value exactly matches. Do not save or close the document and do not operate any other app. Report every tool actually called and its result.
+```
+
+Acceptance requires all of the following:
+
+1. `plan_check` returns `ready` for the same fresh target later passed to `action_run`.
+2. `action_run` returns `confirmed` and a `new_snapshot_id`.
+3. A read against that new snapshot returns the exact marker text.
+4. The TextEdit document visibly contains the exact marker and remains unsaved.
+
+Use a different marker for each client. Close the test documents without saving only after recording the result. In WorkBuddy, select a workspace before sending the task; its send control stays unavailable when no workspace is selected. If another WorkBuddy task is waiting for an answer, finish or skip that question before starting this acceptance run.
+
 ## WorkBuddy and other MCP clients
 
 Prefer the same authenticated URL when supported. Otherwise create a local stdio MCP server:
