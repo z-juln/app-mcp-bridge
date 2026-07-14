@@ -6,10 +6,10 @@ BUILD_ROOT="$ROOT/.build/app"
 APP="$BUILD_ROOT/App MCP Bridge.app"
 
 cd "$ROOT"
-swift build -c release --product macos-ui-bridge
+swift build -c release --product app-mcp-bridge
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$ROOT/.build/release/macos-ui-bridge" "$APP/Contents/MacOS/macos-ui-bridge"
+cp "$ROOT/.build/release/app-mcp-bridge" "$APP/Contents/MacOS/app-mcp-bridge"
 cp "$ROOT/Resources/App-Info.plist" "$APP/Contents/Info.plist"
 swift "$ROOT/scripts/generate-app-icon.swift" "$APP/Contents/Resources/AppIcon.icns"
 
@@ -22,7 +22,7 @@ restore_keychains() {
 }
 trap restore_keychains EXIT
 security list-keychains -d user -s "$keychain" "${original_keychains[@]}"
-codesign --force --deep --sign "$identity" --identifier com.juln.macos-ui-bridge "$APP"
+codesign --force --deep --sign "$identity" --identifier com.juln.app-mcp-bridge "$APP"
 restore_keychains
 trap - EXIT
 

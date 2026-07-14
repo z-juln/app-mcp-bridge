@@ -154,7 +154,7 @@ flowchart LR
 
 推荐同时支持：
 
-- `stdio`：由 Cursor 直接启动 `macos-ui-bridge mcp`。
+- `stdio`：由 Cursor 直接启动 `app-mcp-bridge mcp`。
 - Streamable HTTP：连接已经运行的 App，地址为
   `http://127.0.0.1:8765/mcp`。
 
@@ -345,7 +345,7 @@ App 需要：
 必须使用稳定 bundle identifier 和开发者签名。开发调试与发布版本的身份不能
 频繁变化，否则用户需要反复授权。
 
-推荐 bundle identifier：`com.juln.macos-ui-bridge`。
+推荐 bundle identifier：`com.juln.app-mcp-bridge`。
 
 ## 10. 关键风险
 

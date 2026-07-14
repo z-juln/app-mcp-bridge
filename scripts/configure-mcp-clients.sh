@@ -1,11 +1,12 @@
 #!/bin/zsh
 set -euo pipefail
 
-APP_EXECUTABLE="/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge"
+APP_EXECUTABLE="/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge"
 ENDPOINT="http://127.0.0.1:8765/mcp"
 TOKEN=$("$APP_EXECUTABLE" token)
 CURSOR_MCP_CONFIG=${CURSOR_MCP_CONFIG:-"$HOME/.cursor/mcp.json"}
 WORKBUDDY_MCP_CONFIG=${WORKBUDDY_MCP_CONFIG:-"$HOME/.workbuddy/mcp.json"}
+LEGACY_CONNECTION_NAME="macos-ui-"bridge
 
 update_config() {
   local config_file=$1
@@ -20,16 +21,16 @@ update_config() {
       cp "$config_file" "$config_file.before-app-mcp-bridge"
       chmod 600 "$config_file.before-app-mcp-bridge"
     fi
-    jq --arg endpoint "$ENDPOINT" --arg token "$TOKEN" --arg client "$client" '
+    jq --arg endpoint "$ENDPOINT" --arg token "$TOKEN" --arg client "$client" --arg legacy "$LEGACY_CONNECTION_NAME" '
       .mcpServers = (.mcpServers // {}) |
       .mcpServers["app-mcp-bridge"] = (
         if $client == "workbuddy" then
           {url: $endpoint, headers: {Authorization: ("Bearer " + $token)}, type: "streamable-http", timeout: 30000}
         else
-          {command: "/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge", args: ["mcp"]}
+          {command: "/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge", args: ["mcp"]}
         end
       ) |
-      del(.mcpServers["macos-ui-bridge"])
+      del(.mcpServers[$legacy])
     ' "$config_file" > "$temp"
   else
     jq -n --arg endpoint "$ENDPOINT" --arg token "$TOKEN" --arg client "$client" '
@@ -37,7 +38,7 @@ update_config() {
         if $client == "workbuddy" then
           {url: $endpoint, headers: {Authorization: ("Bearer " + $token)}, type: "streamable-http", timeout: 30000}
         else
-          {command: "/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge", args: ["mcp"]}
+          {command: "/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge", args: ["mcp"]}
         end
       )}}
     ' > "$temp"

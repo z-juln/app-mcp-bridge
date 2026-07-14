@@ -5,7 +5,7 @@
 ## 1. 推荐项目结构
 
 ```text
-macos-ui-bridge/
+app-mcp-bridge/
 ├── app/                         # macOS 无界面服务 App
 ├── packages/
 │   ├── core/                    # 控件、窗口、快照、动作和验证

@@ -22,7 +22,7 @@ public struct AutomationActivityRecord: Codable, Sendable {
 extension AutomationActivityPhase: Codable {}
 
 public enum AutomationActivityCenter {
-    public static let notification = Notification.Name("com.juln.macos-ui-bridge.activity")
+    public static let notification = Notification.Name("com.juln.app-mcp-bridge.activity")
 
     public static func publish(
         phase: AutomationActivityPhase,
@@ -70,7 +70,7 @@ public enum AutomationActivityCenter {
 
     private static var stateURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Application Support/macos-ui-bridge", isDirectory: true)
+            .appendingPathComponent("Library/Application Support/app-mcp-bridge", isDirectory: true)
             .appendingPathComponent("activity.json")
     }
 

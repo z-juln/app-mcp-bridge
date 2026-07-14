@@ -5,7 +5,7 @@ public struct TokenStore: Sendable {
 
     public init(tokenFile: URL? = nil) {
         self.tokenFile = tokenFile ?? FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".macos-ui-bridge", isDirectory: true)
+            .appendingPathComponent(".app-mcp-bridge", isDirectory: true)
             .appendingPathComponent("token", isDirectory: false)
     }
 

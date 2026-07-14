@@ -11,7 +11,7 @@ enum UIBridgeCommand {
         do {
             try await run()
         } catch {
-            FileHandle.standardError.write(Data("macos-ui-bridge: \(error.localizedDescription)\n".utf8))
+            FileHandle.standardError.write(Data("app-mcp-bridge: \(error.localizedDescription)\n".utf8))
             Foundation.exit(EXIT_FAILURE)
         }
     }
@@ -20,7 +20,7 @@ enum UIBridgeCommand {
         let arguments = Array(CommandLine.arguments.dropFirst())
         let executablePath = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL.path
         let isBundledAppLaunch = arguments.isEmpty && (
-            Bundle.main.bundleIdentifier == "com.juln.macos-ui-bridge"
+            Bundle.main.bundleIdentifier == "com.juln.app-mcp-bridge"
                 || executablePath.contains(".app/Contents/MacOS/")
         )
         let command = arguments.first ?? (isBundledAppLaunch ? "app" : "help")
@@ -28,7 +28,7 @@ enum UIBridgeCommand {
 
         switch command {
         case "version":
-            print("macos-ui-bridge 0.1.0-dev")
+            print("app-mcp-bridge 0.1.0-dev")
         case "permissions":
             let status = PermissionInspector.current()
             print("accessibility=\(status.accessibilityTrusted) screenCapture=\(status.screenCaptureAllowed == true)")
@@ -40,7 +40,7 @@ enum UIBridgeCommand {
             let token = try tokenStore.loadOrCreate()
             let server = try await HTTPServer.make(port: port, token: token)
             try server.start()
-            print("macos-ui-bridge listening on http://127.0.0.1:\(port)")
+            print("app-mcp-bridge listening on http://127.0.0.1:\(port)")
             while !Task.isCancelled {
                 try await Task.sleep(for: .seconds(3_600))
             }
@@ -57,7 +57,7 @@ enum UIBridgeCommand {
             try await MCPBridge.runStdio()
         case "call":
             guard arguments.indices.contains(1) else {
-                throw LocalBridgeClientError.invalidArguments("usage: macos-ui-bridge call <tool> ['{...}'] [--port 8765]")
+                throw LocalBridgeClientError.invalidArguments("usage: app-mcp-bridge call <tool> ['{...}'] [--port 8765]")
             }
             let token = try tokenStore.loadOrCreate()
             let data = try await LocalBridgeClient(token: token, port: parsePort(arguments) ?? 8765).call(
@@ -96,7 +96,7 @@ enum UIBridgeCommand {
                 print("not running")
             }
         default:
-            print("macos-ui-bridge <start|stop|serve|mcp|call|status|permissions|token|version>")
+            print("app-mcp-bridge <start|stop|serve|mcp|call|status|permissions|token|version>")
         }
     }
 

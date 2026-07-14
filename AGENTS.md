@@ -2,7 +2,7 @@
 
 本仓库当前开发 App MCP Bridge 的 macOS 实现，通过本地 HTTP、MCP 和 Skill
 供 Cursor、WorkBuddy 及其他 Agent 使用。详细产品范围见 `docs/`，当前任务事实见
-`coding-agent-harness/planning/tasks/2026-07-10-macos-ui-bridge-96db7c45/`。
+`coding-agent-harness/planning/tasks/2026-07-14-app-mcp-bridge-3f556723/`。
 
 ## 项目概况
 
@@ -22,7 +22,7 @@
 7. 发送、删除、购买、权限变更等高影响动作必须返回确认要求，不能自行完成最终动作。
 8. 保护任务范围外的用户改动，不使用破坏性 Git 命令。
 9. 每个可运行、已验证的切片都必须更新任务 `progress.md` 并提交。
-10. 提交信息必须包含 `Harness: 2026-07-10-macos-ui-bridge-96db7c45` 和
+10. 提交信息必须包含当前任务的 `Harness: <任务 ID>` 和
     `AI-Co-Authored-By: <Agent 名称>`。
 11. 每次接力先执行 `git status --short`、阅读任务计划和进度，再从“下一步”继续。
 12. 不得因为额度不足而留下未说明的半成品；停止前必须提交可用切片并更新交接。
@@ -67,7 +67,7 @@
 
 - 构建：`swift build`
 - 基础自检：`swift run protocol-self-test`
-- 状态：`swift run macos-ui-bridge status`
+- 状态：`swift run app-mcp-bridge status`
 - Harness 检查：`npx --yes coding-agent-harness check --profile target-project .`
 
 ## 完成标准

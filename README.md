@@ -46,20 +46,20 @@ curl http://127.0.0.1:8765/health
 ## 启动服务
 
 ```bash
-swift run macos-ui-bridge start
-swift run macos-ui-bridge status
+swift run app-mcp-bridge start
+swift run app-mcp-bridge status
 ```
 
 默认只监听 `127.0.0.1:8765`。查看令牌：
 
 ```bash
-swift run macos-ui-bridge token
+swift run app-mcp-bridge token
 ```
 
 检查接口：
 
 ```bash
-TOKEN=$(swift run macos-ui-bridge token 2>/dev/null)
+TOKEN=$(swift run app-mcp-bridge token 2>/dev/null)
 curl http://127.0.0.1:8765/health
 curl -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/permissions
 curl -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/apps
@@ -68,7 +68,7 @@ curl -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/apps
 停止：
 
 ```bash
-swift run macos-ui-bridge stop
+swift run app-mcp-bridge stop
 ```
 
 当前接口：
@@ -92,7 +92,7 @@ swift run macos-ui-bridge stop
 推荐连接已运行 App 的本地地址。先执行：
 
 ```bash
-TOKEN=$('/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge' token)
+TOKEN=$('/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge' token)
 ```
 
 再把 `$TOKEN` 替换成上一步输出：
@@ -116,7 +116,7 @@ TOKEN=$('/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge' token)
 {
   "mcpServers": {
     "app-mcp-bridge": {
-      "command": "/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge",
+      "command": "/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge",
       "args": ["mcp"]
     }
   }

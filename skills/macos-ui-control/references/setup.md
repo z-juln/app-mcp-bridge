@@ -17,7 +17,7 @@ The self-test is read-only. A successful run prints the server name, tool names,
 Prefer the running App's authenticated local endpoint. Obtain its token:
 
 ```bash
-/Applications/App\ MCP\ Bridge.app/Contents/MacOS/macos-ui-bridge token
+/Applications/App\ MCP\ Bridge.app/Contents/MacOS/app-mcp-bridge token
 ```
 
 Configure the endpoint and replace `TOKEN_FROM_COMMAND`:
@@ -39,7 +39,7 @@ If the client does not support local HTTP MCP, use stdio:
 {
   "mcpServers": {
     "app-mcp-bridge": {
-      "command": "/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge",
+      "command": "/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge",
       "args": ["mcp"]
     }
   }
@@ -78,7 +78,7 @@ Use a different marker for each client. Close the test documents without saving 
 
 Prefer the same authenticated URL when supported. Otherwise create a local stdio MCP server:
 
-- command: `/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge`
+- command: `/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge`
 - arguments: `mcp`
 - working directory: `/Users/juln/Desktop/workspace/app-mcp-bridge` when the client requests one
 
@@ -87,7 +87,7 @@ The client must launch one process per MCP connection. Do not run the `mcp` comm
 If WorkBuddy can read the HTTP connection but does not expose `plan_check` or `action_run`, use the installed App's safe local call entry. It reads the local credential internally, so do not put a token in a prompt, shell command, or file:
 
 ```bash
-BRIDGE="/Applications/App MCP Bridge.app/Contents/MacOS/macos-ui-bridge"
+BRIDGE="/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge"
 "$BRIDGE" call apps_list
 "$BRIDGE" call windows_list '{"pid":1234}'
 "$BRIDGE" call snapshot_get '{"pid":1234,"window_id":5678}'

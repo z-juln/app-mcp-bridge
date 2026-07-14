@@ -18,9 +18,9 @@ Confidence: medium
 swift build
 swift run protocol-self-test
 swift run core-self-test
-swift run macos-ui-bridge start
-swift run macos-ui-bridge status
-swift run macos-ui-bridge stop
+swift run app-mcp-bridge start
+swift run app-mcp-bridge status
+swift run app-mcp-bridge stop
 npx --yes coding-agent-harness check --profile target-project .
 npx --yes coding-agent-harness status --json .
 ```

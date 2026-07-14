@@ -8,7 +8,7 @@ public struct ServiceStateStore: Sendable {
 
     public init(directory: URL? = nil) {
         self.directory = directory ?? FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".macos-ui-bridge", isDirectory: true)
+            .appendingPathComponent(".app-mcp-bridge", isDirectory: true)
     }
 
     public func runningPID() -> Int32? {

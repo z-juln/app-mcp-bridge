@@ -4,6 +4,15 @@
 
 ## 进度记录
 
+### 2026-07-14 12:40 - 完成内部名称迁移
+
+- 做了什么：将包目标、源码目录、App 内程序、系统标识、本地状态、启动项、Cursor/WorkBuddy 连接和当前文档统一为 `app-mcp-bridge`；安装时自动迁移旧状态并移除旧启动项。
+- 验证结果：Debug/Release 构建、两项自检、真实安装、健康检查、MCP Skill 自检、权限读取、客户端配置检查和 Harness 检查均通过；已安装应用的程序名与系统标识均为新名称。
+- 下一步：提交实现切片，完成任务审查材料。
+- 证据：command:TARGET:/Applications/App MCP Bridge.app/Contents/MacOS/app-mcp-bridge:version、health 和 permissions 通过
+- 证据：command:TARGET:skills/macos-ui-control/scripts/self_test.py:self-test passed
+- 证据：command:TARGET:npx --yes coding-agent-harness check --profile target-project .:passed
+
 ### 2026-07-14 11:50 - 任务规划
 
 - 做了什么：确认旧名称仍来自内部可执行程序、包目标、签名标识、本地目录和启动项；确定完整迁移范围。
@@ -13,7 +22,7 @@
 
 ## 残余
 
-- 新内部标识安装后需重新授予 macOS 权限。
+- 无实现残余。历史任务编号、历史证据路径和 Git 历史保留旧任务身份，不属于当前产品名称。
 
 ### [2026-07-14 04:30] - task-start
 
