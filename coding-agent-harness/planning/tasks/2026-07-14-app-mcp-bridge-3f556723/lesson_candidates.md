@@ -7,11 +7,11 @@
 | Field | Value |
 | --- | --- |
 | Schema version | lesson-candidate-v1 |
-| Task-level status | pending-review |
+| Task-level status | no-candidate-accepted |
 | Review gate | candidate-file-present |
-| Review decision | pending-human-review |
+| Review decision | no-separate-candidate; applied directly to task documentation |
 | Promotion state | not-promoted |
-| Closeout token | pending |
+| Closeout token | checked-none |
 | Source task | 2026-07-14-app-mcp-bridge-3f556723 |
 | Owner | coordinator |
 | Last updated | 2026-07-14 |
@@ -49,7 +49,7 @@
 
 ## No-Candidate Reason
 
-尚未判定。只有人工审查接受本任务没有可复用候选时，才填写这里。
+本次只是把既有产品名称完整迁移到新名称，方法和边界已写入任务文档，没有新增值得独立沉淀的通用规则。
 
 ## Promotion Notes
 
