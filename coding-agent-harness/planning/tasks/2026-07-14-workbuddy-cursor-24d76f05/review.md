@@ -102,3 +102,17 @@
 ## 最终信心依据（Final Confidence Basis）
 
 信心来自两个真实客户端各自完成隔离写入、动作返回的新快照回读、TextEdit 独立读取，以及重新安装后的构建、自检、健康、状态和错误路径检查。本任务不声称 Windows 或第三方应用写入已经完成。
+
+## Agent Review Submission
+
+| Field | Value |
+| --- | --- |
+| Submission ID | ARS-202607140323 |
+| Submitted At | 2026-07-14 03:23 |
+| Submitted By | agent |
+| Task Key | TASKS/2026-07-14-workbuddy-cursor-24d76f05 |
+| Materials Checklist Hash | 90b93ab84b4514ef |
+| Evidence Summary | WorkBuddy and Cursor real write loops verified; build, install, self-tests and cleanup checks passed |
+| Open Findings Count | 0 |
+| Scanner Version | task-scanner/2026-05-25-phase-kind |
+| Target | TARGET:coding-agent-harness/planning/tasks/2026-07-14-workbuddy-cursor-24d76f05 |
