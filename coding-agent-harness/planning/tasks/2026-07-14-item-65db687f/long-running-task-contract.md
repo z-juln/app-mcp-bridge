@@ -2,117 +2,78 @@
 
 ## 目标
 
-[一句话说明本轮要完整收掉的主问题。只保留一个主目标。]
+完成可真实显示活动应用画面、管理设置并阻断未二次确认危险动作的 macOS App。
 
 ## 范围
 
 ### 范围内
 
-- [允许修改的目录、模块、能力面]
+- `Sources/app-mcp-bridge/` 原生设置与实时调试界面。
+- 必要的活动历史、来源和安全确认状态。
+- 安装、验收、文档和交接。
 
 ### 范围外
 
-- [本轮明确不做的事项]
+- Windows、远程访问、云同步、长期截图存档。
 
 ### 共享文件 / 冲突风险
 
-- [可能与其他任务冲突的共享文件；如无写“无”]
+- `AutomationRuntime.swift`、MCP/HTTP 动作入口和 `docs/04-current-status.md`。
 
-## 主调用入口（Primary Caller / Entry）
+## 主调用入口
 
-- 主调用方（Primary caller）：[CLI / 本地 agent / UI / API / automation / integration / 其他]
-- 本任务必须支持的入口：[列出]
-- 明确不要求的入口：[列出]
+- 主调用方：UI + 本地 Agent。
+- 必须支持：安装版 App、菜单栏、程序坞、HTTP MCP、stdio MCP。
+- 明确不要求：Windows 或远程浏览器。
 
-## 执行授权（Execution Permission）
+## 执行授权
 
-- 是否允许连续执行（Continuous execution）：[allowed / not allowed]
-- 是否允许每轮后不再询问直接继续：[yes / no]
-- 是否允许启动审查 agent / 子代理：[yes / no]
-- 是否需要审查报告：[yes / no；如 yes，必须写 `review.md`]
-- 仍需人工批准的动作：
-  - [高风险操作，例如 destructive migration / production deploy / secret change]
+- 是否允许连续执行：allowed
+- 是否允许每轮后不再询问直接继续：yes
+- 是否允许启动审查 agent / 子代理：no
+- 是否需要审查报告：yes
+- 仍需人工批准的动作：真实删除、购买、权限变更；不得为测试执行这些动作。
 
 ## 必需循环
 
-每一轮至少包含：
+每个切片都要实现、构建、运行、检查、更新进度并提交。至少完成窗口外壳、实时画面、安全确认三轮；最终自审无重要发现。
 
-1. 实现、编辑或配置。
-2. 本地运行。
-3. 测试、冒烟或检查。
-4. 执行 Confidence Challenge。
-5. 如合同要求审查者或子代理，更新 `review.md`。
-6. 修复 findings。
-7. 重新收集证据。
-8. 重跑 Confidence Challenge，直到没有 open 重要发现。
-9. 更新 `progress.md`。
+## 审查者 / 子代理合同
 
-最低循环次数或无重要发现要求：
-
-- [例如：至少 2 轮；或自审 + 审查者均无重要发现]
-
-## 审查者 / 子代理合同（Reviewer / Subagent）
-
-- 审查者角色（Reviewer role）：[只读审查 / 改代码 worker / 测试验证者]
-- 审查范围（Reviewer scope）：[文件 / 模块 / 问题域]
-- 如果是 code-change worker：
-  - Worktree path：[路径 / 不适用]
-  - Branch：[分支 / 不适用]
-  - 任务目录：[路径 / 不适用]
-  - 交接前提交（Commit before handoff）：[yes / no / 不适用]
-  - 交接必须包含：[worktree path / branch / commit SHA / checks / residual risks]
-- Reviewer 必须报告：
-  - [缺陷]
-  - [回归]
-  - [缺失测试]
-  - [未验证假设]
-  - [`review.md` 中的重要发现或无重要发现声明]
-- Reviewer 不得：
-  - [越权改动 / 重写不相关模块 / 擅自扩大 scope]
+- 审查者角色：coordinator 对抗性自审。
+- 审查范围：界面可用性、隐私、截图资源占用、危险动作绕过、兼容性。
+- Reviewer 必须报告：缺陷、回归、缺失测试、未验证假设和无重要发现声明。
+- Reviewer 不得：执行真实危险动作或扩大到 Windows。
 
 ## 证据
 
-完成前必需证据：
+- [ ] `swift build`、协议和核心自检。
+- [ ] 状态历史与危险确认门禁自检。
+- [ ] 安装版设置窗口七页导航。
+- [ ] 真实活动应用画面与多应用切换。
+- [ ] Cursor/WorkBuddy 操作映射。
+- [ ] `review.md`、walkthrough 和最终文档。
 
-- [ ] [lint / typecheck / build command]
-- [ ] [unit / integration / e2e test command]
-- [ ] [本地冒烟命令]
-- [ ] [浏览器 / UI / 人工检查]
-- [ ] [线上环境冒烟]
-- [ ] [审查者无重要发现]
-- [ ] [如要求审查，`review.md` 已完成]
-- [ ] [walkthrough / PR / 发布说明]
+## 完成条件
 
-## 完成条件（Stop Condition）
+- [ ] 关键路径和既有回归通过。
+- [ ] 界面无明显错位、空白或失效按钮。
+- [ ] 截图仅在实时页内存展示，离开即停止。
+- [ ] 未经 App 二次确认的危险动作无法执行。
+- [ ] 自审无 open P0/P1/P2。
+- [ ] 残余风险已记录且不阻塞目标。
 
-任务只有在以下条件满足后才可停止并声明完成：
+## 暂停条件
 
-- [ ] [关键路径通过]
-- [ ] [必需测试或回归门禁通过]
-- [ ] [runtime / console / request 错误已清除，或已记录为非阻塞残余]
-- [ ] [如要求审查者，审查者无 open 重要发现]
-- [ ] [如要求审查，`review.md` 无 open P0/P1 发现]
-- [ ] [残余风险已记录，且不阻塞本轮目标]
+- [ ] 目标或范围失效。
+- [ ] 需要高风险产品、安全或数据决策。
+- [ ] 未知改动与本任务冲突。
+- [ ] 环境无法提供任何关键证据。
+- [ ] 发现现有协议无法兼容且需破坏性迁移。
 
-## 暂停条件（Pause Conditions）
+## 交付物
 
-遇到以下情况必须暂停并汇报：
-
-- [ ] 目标或范围已经失效。
-- [ ] 需要高风险的产品、架构、安全或数据决策。
-- [ ] 未知的无关改动与本任务冲突。
-- [ ] 环境阻断了所有有用证据的收集。
-- [ ] 审查者发现改变了任务方向。
-
-## 交付物（Deliverables）
-
-- [ ] 代码 / 配置改动
-- [ ] 测试 / 回归证据
-- [ ] 文档更新
-- [ ] 如要求审查，`review.md` 报告
-- [ ] `progress.md` / `findings.md` 更新
-- [ ] Harness Ledger 更新
-- [ ] 收口记录
-- [ ] Lessons 反思与检查：`lesson_candidates.md` 已进入 `no-candidate-accepted` / `needs-promotion` / `promoted` / `rejected`
-- [ ] PR / commit / 发布说明
-- [ ] 残余风险摘要
+- [ ] 代码与配置改动。
+- [ ] 测试、真实界面证据和审查报告。
+- [ ] 文档、进度、发现和交接更新。
+- [ ] Lessons 决策、提交和推送记录。

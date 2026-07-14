@@ -18,8 +18,8 @@
 
 | Question | Decision | Reason | Next Action |
 | --- | --- | --- | --- |
-| Should a reviewer subagent be used? | yes / no | [为什么需要或不需要 reviewer] | 如果 yes，直接调用只读 reviewer，不需要额外申请。 |
-| Would a worker subagent materially help? | no / ask-user / already-authorized | [并行切片、独立实现、专项调查，或说明为什么不需要] | 如果 ask-user，直接问：“这个任务适合拆给 worker subagent 并行处理。是否授权我派一个 worker subagent，只修改 [scope]，只在 [worktree/branch] 内执行，我负责协调和最终审查？” |
+| Should a reviewer subagent be used? | no | 本轮开发文件强关联，先由 coordinator 完成真实运行与自审。 | 收口时执行对抗性自审。 |
+| Would a worker subagent materially help? | no | 状态、截图、界面和安全链路相互依赖，并行写入会增加冲突；用户要求连续小提交即可接力。 | coordinator 单线程分片。 |
 
 ## User Authorization Decision
 
@@ -28,18 +28,18 @@
 
 | Gate | State | Decided By | Decided At | Scope | Worktree / Branch | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| worker subagent | pending | pending | pending | pending | pending | 只有直接问过用户后才能填写。 |
+| worker subagent | not-needed | coordinator | 2026-07-14 | 不适用 | 当前仓库 / master | 文件高度相关，不拆 worker。 |
 
 ## 决策表
 
 | 决策 | 选择 | 说明 |
 | --- | --- | --- |
 | 主执行者 | coordinator | coordinator 负责编排顺序、冲突判断和最终收口。 |
-| Subagent 模式 | none / reviewer-only / worker-worktree | 选择能满足任务的最小协作模式。 |
-| 审查模型 | self-check / predefined verifier / adversarial review | 说明为什么该审查层级足够。 |
-| Worktree 策略 | same checkout / dedicated worktree | 会改代码的 subagent 必须使用独立 worktree，并提交 handoff commit。 |
+| Subagent 模式 | none | 单协调者分片实现。 |
+| 审查模型 | adversarial review | 涉及持续截图和危险操作门禁，必须检查隐私、性能和绕过路径。 |
+| Worktree 策略 | same checkout | 无并行 worker。 |
 | 冲突控制 | coordinator owns shared files | subagent 不得直接编辑 coordinator 管理的全局表或共享文件，除非获得明确锁。 |
-| 证据深度 | L0 / L1 / L2 / L3 | 按变更风险匹配证据深度。 |
+| 证据深度 | L3 | 安装版原生 UI 与危险动作需要真实运行证据。 |
 
 ## 子代理 / Worker 合同
 
@@ -47,16 +47,16 @@
 
 | 角色 | 输入包 | 写入范围 | 交接要求 | 负责人 |
 | --- | --- | --- | --- | --- |
-| reviewer / worker / n/a | C-001 | read-only / path list / n/a | report / commit SHA / n/a | coordinator |
+| n/a | C-001 | n/a | n/a | coordinator |
 
 ## 证据计划
 
 | 证据层级 | 计划命令或检查 | 记录位置 | 完成条件 |
 | --- | --- | --- | --- |
-| L0 | [静态检查 / 小范围自检] | `progress.md` | [通过标准] |
-| L1 | [单元测试 / targeted check] | `progress.md` 或 `artifacts/INDEX.md` | [通过标准] |
-| L2 | [集成 / 浏览器 / 真实数据冒烟] | `artifacts/INDEX.md` | [通过标准] |
-| L3 | [发布前 / 生产等价验证 / 外部审查] | `review.md` 与 walkthrough | [通过标准] |
+| L0 | Swift 编译与敏感数据/旧名称检查 | `progress.md` | 无编译错误和敏感内容落盘 |
+| L1 | 状态、历史、确认门禁自检 | `progress.md` | 拒绝、超时和允许分支均通过 |
+| L2 | 安装版真实窗口、截图和导航冒烟 | `artifacts/INDEX.md` | 七页可打开，活动画面真实更新 |
+| L3 | Cursor/WorkBuddy 真实操作与危险动作阻断 | `review.md` 与 walkthrough | 操作映射可见，未经 App 二次确认不执行 |
 
 ## 暂停 / 升级条件
 

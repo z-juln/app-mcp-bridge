@@ -1,41 +1,24 @@
 # 实现完整设置与实时调试界面 - 进度
 
-## 状态：未开始
-
-`## 状态` 是受控机器字段，只能使用以下值之一：
-
-- `未开始`
-- `计划中`
-- `进行中`
-- `审查中`
-- `已阻塞`
-- `已完成`
-
-不要把 `计划审阅中`、`等待 coordinator pass`、`本地审查就绪` 等细粒度协作状态写入本字段。
-这些状态应记录到进度记录、残余或协调者交接中。
+## 状态：计划中
 
 ## 进度记录
 
-证据使用 `type:path:summary` 格式。
+### 2026-07-14 13:30 - 原型确认与任务登记
 
-允许的 `type`：`command`, `diff`, `fixture`, `screenshot`, `review`, `report`。
-
-证据较长或数量较多时，不要粘贴全文；放入 `artifacts/INDEX.md` 并在这里引用 ID。
-
-### [YYYY-MM-DD HH:MM] - [阶段名称]
-
-- 做了什么：[具体操作]
-- 验证结果：[运行了什么检查，结果如何]
-- 下一步：[下一步动作]
-- 证据：[type:path:summary]
+- 做了什么：把用户确认的完整设置、所有活动应用实时画面和危险动作二次确认整理为独立长任务。
+- 验证结果：核对现有 App 菜单、活动提示、窗口截图和动作安全链路，确认可以分片复用。
+- 下一步：实现设置窗口外壳和真实状态总览。
+- 证据：`diff:TARGET:coding-agent-harness/planning/tasks/2026-07-14-item-65db687f/:approved scope recorded`
 
 ## 残余
 
-- [遗留问题；如无写“无”]
+- 实时画面刷新频率与资源占用需要在安装版实测后定值。
+- 当前活动记录缺少明确客户端来源，需要在不破坏现有连接的前提下补充。
 
-## 协调者交接（Coordinator，启用模块并行时填写）
+## 协调者交接
 
-- Global sync status：pending-coordinator-pass / synced / n/a
-- Registry update needed：[module key, step, status, branch, updated / 不适用]
-- Harness Ledger update needed：[task plan path, review path, closeout status / 不适用]
-- 负责人：coordinator / 不适用
+- Global sync status：n/a
+- Registry update needed：不适用
+- Harness Ledger update needed：任务收口时更新
+- 负责人：coordinator
