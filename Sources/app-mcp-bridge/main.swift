@@ -71,16 +71,22 @@ enum UIBridgeCommand {
                 at: AppShell.showSettingsRequestURL.deletingLastPathComponent(),
                 withIntermediateDirectories: true
             )
-            let requestedSection = arguments.indices.contains(1) ? arguments[1] : "overview"
-            try Data(requestedSection.utf8).write(to: AppShell.showSettingsRequestURL, options: .atomic)
-            NSRunningApplication.runningApplications(withBundleIdentifier: "com.juln.app-mcp-bridge")
-                .first?
-                .activate(options: [.activateAllWindows])
-            DistributedNotificationCenter.default().postNotificationName(
-                AppShell.showSettingsNotification,
-                object: nil,
-                deliverImmediately: true
-            )
+            let requestedSection = arguments.indices.contains(1) && !arguments[1].hasPrefix("--")
+                ? arguments[1]
+                : "overview"
+            let background = arguments.contains("--background")
+            let request = (background ? "background:" : "foreground:") + requestedSection
+            try Data(request.utf8).write(to: AppShell.showSettingsRequestURL, options: .atomic)
+            if !background {
+                NSRunningApplication.runningApplications(withBundleIdentifier: "com.juln.app-mcp-bridge")
+                    .first?
+                    .activate(options: [.activateAllWindows])
+                DistributedNotificationCenter.default().postNotificationName(
+                    AppShell.showSettingsNotification,
+                    object: nil,
+                    deliverImmediately: true
+                )
+            }
         case "preview-stream":
             guard arguments.indices.contains(1), let windowID = UInt32(arguments[1]) else {
                 throw LocalBridgeClientError.invalidArguments("preview-stream requires a window id")

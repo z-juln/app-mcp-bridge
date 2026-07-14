@@ -99,12 +99,22 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func refreshStatusItemTimer() {
         if FileManager.default.fileExists(atPath: Self.showSettingsRequestURL.path) {
-            let requested = (try? String(contentsOf: Self.showSettingsRequestURL, encoding: .utf8))
-            try? FileManager.default.removeItem(at: Self.showSettingsRequestURL)
-            let section = requested.flatMap(SettingsSection.init(rawValue:))
-            settingsController.show(section: section, targets: overlayController.activeTargets)
+            consumeShowSettingsRequest()
         }
         updateStatusItem(for: overlayController.activeTargets)
+    }
+
+    private func consumeShowSettingsRequest() {
+        guard let requested = try? String(contentsOf: Self.showSettingsRequestURL, encoding: .utf8) else { return }
+        try? FileManager.default.removeItem(at: Self.showSettingsRequestURL)
+        let parts = requested.split(separator: ":", maxSplits: 1).map(String.init)
+        let background = parts.count == 2 && parts[0] == "background"
+        let sectionName = parts.count == 2 ? parts[1] : requested
+        settingsController.show(
+            section: SettingsSection(rawValue: sectionName),
+            targets: overlayController.activeTargets,
+            activate: !background
+        )
     }
 
     private func makeMenu() -> NSMenu {

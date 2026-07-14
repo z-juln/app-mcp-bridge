@@ -138,13 +138,17 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     required init?(coder: NSCoder) { nil }
 
-    func show(section: SettingsSection? = nil, targets: [ControlledTarget]) {
+    func show(section: SettingsSection? = nil, targets: [ControlledTarget], activate: Bool = true) {
         if let section { model.selectedSection = section }
         model.refresh(targets: targets)
-        showWindow(nil)
         window?.centerIfNeeded()
-        NSApplication.shared.activate(ignoringOtherApps: true)
-        window?.makeKeyAndOrderFront(nil)
+        if activate {
+            showWindow(nil)
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            window?.makeKeyAndOrderFront(nil)
+        } else {
+            window?.orderBack(nil)
+        }
         model.setWindowVisible(true)
     }
 

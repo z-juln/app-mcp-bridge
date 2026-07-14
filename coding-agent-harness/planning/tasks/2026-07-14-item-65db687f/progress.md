@@ -51,6 +51,15 @@
 - 证据：diagnostic:TARGET:preview-diagnostics:worker_first_frame_written -> coordinator_frame_received -> coordinator_frame_applied
 - 证据：command:TARGET:pgrep preview-stream:离开实时页后无残留
 
+### 2026-07-14 15:40 - 多应用后台验收通过
+
+- 做了什么：新增后台显示设置页的方式，并把登录后自动启动改为后台启动；使用 Cursor 和 ChatGPT 两个可见窗口做只读实时画面验收。
+- 验证结果：实时页同时显示 ChatGPT、Cursor 两个真实缩略图，选中的 Cursor 大画面正常；测试前后前台应用均为 ChatGPT，App MCP Bridge 未抢焦点。退出后临时截图、诊断记录和画面进程均已清理。
+- 下一步：完成诊断页导出和任务最终审查。
+- 证据：ui:TARGET:App MCP Bridge 后台实时操控页:ChatGPT 与 Cursor 双缩略图和 Cursor 大画面可见
+- 证据：command:TARGET:apps_list frontmost:before=com.openai.codex after=com.openai.codex
+- 证据：diagnostic:TARGET:preview-diagnostics:worker_first_frame_written count=2
+
 ## 残余
 
 - 实时画面主链路已完成安装版验收。
