@@ -1,6 +1,6 @@
 # 实现 WorkBuddy Cursor 真实写入闭环 - 进度
 
-## 状态：审查中
+## 状态：已完成
 
 `## 状态` 是受控机器字段，只能使用以下值之一：
 
@@ -88,4 +88,11 @@
 - 做了什么：WorkBuddy and Cursor real write loops verified; build, install, self-tests and cleanup checks passed
 - 验证结果：已记录
 - 下一步：继续执行
+- 证据：n/a
+
+### [2026-07-14 04:50] - task-complete
+
+- 做了什么：Human review confirmed; real client write loop finalized
+- 验证结果：已记录
+- 下一步：完成
 - 证据：n/a
