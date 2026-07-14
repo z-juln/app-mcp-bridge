@@ -69,7 +69,7 @@ final class AutomationSessionCoordinator: ObservableObject {
             executable: executable,
             windowID: target.windowID,
             onFrame: { [weak self] data in
-                Task { @MainActor [weak self] in
+                DispatchQueue.main.async { [weak self] in
                     guard let self, self.viewerActive,
                           self.streams[target.pid]?.windowID == target.windowID,
                           let image = NSImage(data: data) else { return }
@@ -79,7 +79,7 @@ final class AutomationSessionCoordinator: ObservableObject {
                 }
             },
             onStopped: { [weak self] message in
-                Task { @MainActor [weak self] in
+                DispatchQueue.main.async { [weak self] in
                     guard let self, self.viewerActive,
                           self.streams[target.pid]?.windowID == target.windowID else { return }
                     self.errors[target.pid] = message

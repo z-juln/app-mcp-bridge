@@ -27,6 +27,13 @@
 - 证据：command:TARGET:.build/debug/app-mcp-bridge preview-stream 102:frames=2 total_bytes=70673 max_frame=35352
 - 证据：command:TARGET:swift build && swift run protocol-self-test && swift run safety-self-test:passed
 
+### 2026-07-14 15:00 - 安装版回传阻塞定位
+
+- 做了什么：安装版以每秒 1 张画面的参数做了一次短时验收；内部画面进程能启动和退出，但界面仍停在等待画面。确认画面回传沿用了会被原生事件循环压住的主界面任务队列，已改为直接投递到主事件队列。
+- 验证结果：修复后 Debug 构建通过；测试退出后无内部画面进程残留。按用户要求停止重复界面尝试，本切片尚未再次打开实时页。
+- 下一步：下次只做一次短时安装版验收；若仍不显示，停止实现并请求人工协助，不再更换路线。
+- 证据：command:TARGET:swift build:passed
+
 ## 残余
 
 - 实时画面已按低负载参数完成命令级验证，仍需一次安装版界面与退出清理验收。
