@@ -55,5 +55,13 @@ let package = Package(
             name: "safety-self-test",
             dependencies: ["UIBridgeMacCore"]
         ),
+        .executableTarget(
+            name: "dangerous-action-fixture",
+            dependencies: []
+        ),
+        .executableTarget(
+            name: "dangerous-confirmation-fixture",
+            dependencies: ["UIBridgeMacCore"]
+        ),
     ]
 )

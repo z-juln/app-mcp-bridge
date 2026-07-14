@@ -42,6 +42,21 @@ enum SafetySelfTest {
         DangerousActionConfirmationCenter.respond(to: deniedRequest, approved: false)
         guard await deniedTask.value == false else { throw Failure("denied request continued") }
 
+        DangerousActionConfirmationCenter.writeHeartbeat()
+        let timeoutStartedAt = Date()
+        let timedOut = await DangerousActionConfirmationCenter.requestApproval(
+            category: .purchase,
+            appName: "测试应用",
+            action: "购买测试项目",
+            target: "测试项目",
+            impact: "会产生测试费用",
+            timeout: 0.4
+        )
+        guard timedOut == false else { throw Failure("timed out request continued") }
+        guard Date().timeIntervalSince(timeoutStartedAt) < 2 else {
+            throw Failure("timed out request did not fail closed promptly")
+        }
+
         try FileManager.default.removeItem(at: DangerousActionConfirmationCenter.heartbeatURL)
         let unavailable = await DangerousActionConfirmationCenter.requestApproval(
             category: .purchase,
@@ -65,7 +80,7 @@ enum SafetySelfTest {
         guard AppAccessPolicyStore.load().allows(appID: "com.example.allowed") == false else {
             throw Failure("inherited app policy was not restored")
         }
-        print("safety-self-test: 6 checks passed")
+        print("safety-self-test: 7 checks passed")
     }
 
     private static func waitForRequest() async throws -> DangerousActionConfirmationRequest {

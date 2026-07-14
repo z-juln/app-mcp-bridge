@@ -80,10 +80,19 @@
 - 证据：ui:TARGET:复制排错信息:success feedback and redacted clipboard content passed
 - 证据：ui:TARGET:导出诊断报告:save panel, JSON validation and cleanup passed
 
+### 2026-07-14 17:10 - 危险操作二次确认验收通过
+
+- 做了什么：补齐确认窗口超时自动关闭；增加不接触真实数据的隔离验收夹具；覆盖删除、购买、权限变更三类提示，以及拒绝、超时、单次允许后的重新读取。
+- 验证结果：删除类操作点击取消后目标保持“未执行”；单次允许后只执行一次并从新快照读到“已执行一次”；购买类等待超时后弹窗自动关闭并返回拒绝；权限变更类显示独立危险提示并在超时后拒绝。安全 7 项、协议 4 项自检通过，确认目录只剩心跳文件，验收进程全部退出。
+- 下一步：完成任务最终审查和安装版综合回归。
+- 证据：command:TARGET:swift run safety-self-test:safety-self-test 7 checks passed
+- 证据：ui:TARGET:App MCP Bridge 危险操作确认:deletion deny unchanged; purchase timeout dismissed; permission change warning visible
+- 证据：command:TARGET:action_run isolated fixture:approved once and verified from new snapshot
+
 ## 残余
 
 - 实时画面主链路已完成安装版验收。
-- 诊断导出已完成；危险操作回归和任务最终审查仍待完成。
+- 诊断导出和危险操作回归已完成；任务最终审查仍待完成。
 
 ## 协调者交接
 
