@@ -19,14 +19,14 @@
 
 | Field | Value |
 | --- | --- |
-| Submission ID | pending-command |
-| Submitted At | pending-command |
-| Submitted By | Codex |
-| Task Key | 2026-07-14-app-mcp-bridge-3f556723 |
-| Materials Checklist Hash | pending-command |
+| Submission ID | ARS-202607140440 |
+| Submitted At | 2026-07-14 04:40 |
+| Submitted By | agent |
+| Task Key | TASKS/2026-07-14-app-mcp-bridge-3f556723 |
+| Materials Checklist Hash | 8011ed0fcbeb1127 |
 | Evidence Summary | 名称迁移、真实安装、服务、客户端配置和自检均通过 |
 | Open Findings Count | 0 |
-| Scanner Version | pending-command |
+| Scanner Version | task-scanner/2026-05-25-phase-kind |
 
 ### Material Checklist（材料清单）
 
@@ -82,11 +82,11 @@
 
 | Queue | Applies? | Reason | Exit condition |
 | --- | --- | --- | --- |
-| Review | yes | 材料和证据齐全，等待人工确认。 | 人工确认或退回。 |
+| Review | no | 审查和人工确认已经完成。 | 不适用。 |
 | Missing Materials | no | 材料齐全。 | 不适用。 |
 | Blocked | no | 无开放阻塞发现。 | 不适用。 |
 | Lessons | no | 没有需要单独沉淀的候选。 | 不适用。 |
-| Confirmed / Finalized | no | 尚待人工确认。 | 人工确认后结项。 |
+| Confirmed / Finalized | yes | 已人工确认并完成收口。 | 已完成。 |
 | Soft-deleted / Superseded | no | 任务有效。 | 不适用。 |
 
 ## 后续路由（Follow-Up Routing）

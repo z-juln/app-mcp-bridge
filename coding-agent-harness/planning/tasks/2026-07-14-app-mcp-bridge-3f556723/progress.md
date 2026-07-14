@@ -44,3 +44,11 @@
 - 验证结果：已记录
 - 下一步：完成
 - 证据：n/a
+
+### 2026-07-14 13:05 - 最终文档同步
+
+- 做了什么：把人工确认、最终完成状态、当前接口、权限保存方式、状态界面和后续范围同步到 README、产品、接入、验收与状态文档。
+- 验证结果：两项最近任务均为已完成且已人工确认；构建、协议自检、Skill 自检、服务健康检查和 Harness 检查通过；关键过时描述搜索为空。
+- 下一步：无，本任务文档已收口。
+- 证据：command:TARGET:npx --yes coding-agent-harness check --profile target-project .:passed
+- 证据：command:TARGET:docs/04-current-status.md:已完成、尚未完成和当前限制已统一记录

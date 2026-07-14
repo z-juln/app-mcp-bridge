@@ -19,14 +19,14 @@
 
 | Field | Value |
 | --- | --- |
-| Submission ID | pending-lifecycle-cli |
-| Submitted At | 2026-07-14 11:30 +08:00 |
-| Submitted By | Codex coordinator |
-| Task Key | 2026-07-14-workbuddy-cursor-24d76f05 |
-| Materials Checklist Hash | pending-lifecycle-cli |
+| Submission ID | ARS-202607140323 |
+| Submitted At | 2026-07-14 03:23 |
+| Submitted By | agent |
+| Task Key | TASKS/2026-07-14-workbuddy-cursor-24d76f05 |
+| Materials Checklist Hash | 90b93ab84b4514ef |
 | Evidence Summary | 两个客户端真实写入通过；构建、自检、安装、负向错误检查通过 |
 | Open Findings Count | 0 |
-| Scanner Version | pending-lifecycle-cli |
+| Scanner Version | task-scanner/2026-05-25-phase-kind |
 
 ### Material Checklist（材料清单）
 
@@ -83,11 +83,11 @@
 
 | Queue | Applies? | Reason | Exit condition |
 | --- | --- | --- | --- |
-| Review | yes | 审查材料完整，等待生命周期命令提交。 | lifecycle CLI 完成审查提交与确认 |
+| Review | no | 审查和人工确认已经完成。 | 不适用 |
 | Missing Materials | no | 必需材料已填写。 | 不适用 |
 | Blocked | no | 无开放阻塞发现。 | 不适用 |
 | Lessons | no | 经验已直接进入本任务接入文档，没有单独候选。 | 不适用 |
-| Confirmed / Finalized | no | 尚待生命周期命令。 | 提交、确认并完成收口 |
+| Confirmed / Finalized | yes | 已人工确认并完成收口。 | 已完成 |
 | Soft-deleted / Superseded | no | 任务有效。 | 不适用 |
 
 ## 后续路由（Follow-Up Routing）
