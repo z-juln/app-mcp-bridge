@@ -1,6 +1,8 @@
 import AppKit
 import SwiftUI
 import UIBridgeMacCore
+import UIBridgeServer
+import UniformTypeIdentifiers
 
 @MainActor
 final class BridgeSettingsModel: NSObject, ObservableObject {
@@ -10,6 +12,9 @@ final class BridgeSettingsModel: NSObject, ObservableObject {
         }
     }
     @Published var permissions = PermissionInspector.current()
+    @Published var serviceReady = false
+    @Published var serviceDetail = "正在检查"
+    @Published var diagnosticsFeedback: String?
     @Published var lastRefreshed = Date()
     @Published var selectedTargetPID: Int32?
     @Published var recentEvents: [AutomationActivityRecord] = []
@@ -29,7 +34,6 @@ final class BridgeSettingsModel: NSObject, ObservableObject {
 
     let connectionURL = "http://127.0.0.1:8765/mcp"
 
-    var serviceReady: Bool { true }
     var activeTargets: [ControlledTarget] { session.targets }
 
     func refresh(targets: [ControlledTarget]? = nil) {
@@ -38,11 +42,51 @@ final class BridgeSettingsModel: NSObject, ObservableObject {
         recentEvents = AutomationActivityCenter.recent()
         runningApps = AppDiscovery.listRunningApplications()
         accessPolicy = AppAccessPolicyStore.load()
+        serviceReady = ServiceStateStore().runningPID() == getpid()
+        serviceDetail = serviceReady ? "响应正常" : "服务记录不可用"
         if selectedTargetPID == nil || !session.targets.contains(where: { $0.pid == selectedTargetPID }) {
             selectedTargetPID = session.targets.first?.pid
         }
         lastRefreshed = Date()
     }
+
+    func copyDiagnosticSummary() {
+        let report = makeDiagnosticReport()
+        NSPasteboard.general.clearContents()
+        if NSPasteboard.general.setString(DiagnosticReportBuilder.summary(report), forType: .string) {
+            diagnosticsFeedback = "诊断摘要已复制"
+        } else {
+            diagnosticsFeedback = "复制失败"
+        }
+    }
+
+    func exportDiagnosticReport() {
+        let panel = NSSavePanel()
+        panel.title = "导出脱敏诊断报告"
+        panel.nameFieldStringValue = "app-mcp-bridge-diagnostics.json"
+        panel.allowedContentTypes = [.json]
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try DiagnosticReportBuilder.encoded(makeDiagnosticReport()).write(to: url, options: .atomic)
+            diagnosticsFeedback = "诊断报告已导出"
+        } catch {
+            diagnosticsFeedback = "导出失败"
+        }
+    }
+
+    func makeDiagnosticReport() -> DiagnosticReport {
+        DiagnosticReportBuilder.build(
+            serviceReady: serviceReady,
+            permissions: permissions,
+            recentEvents: recentEvents,
+            activeApplicationCount: session.targets.count,
+            previewStatus: session.status,
+            connectedPreviewCount: session.frames.count,
+            previewErrorCount: session.errors.count
+        )
+    }
+
 
     func setDefaultAppAccess(_ allowed: Bool) {
         try? AppAccessPolicyStore.setDefaultAllow(allowed)

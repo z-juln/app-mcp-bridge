@@ -592,23 +592,143 @@ private struct DiagnosticsSettingsView: View {
 
     var body: some View {
         PageContainer(title: "调试与诊断", subtitle: "检查服务状态，不保存应用截图或正文。") {
+            HStack(spacing: 14) {
+                diagnosticMetric(
+                    title: "本地服务",
+                    value: model.serviceReady ? "正常" : "异常",
+                    symbol: "server.rack",
+                    color: model.serviceReady ? .green : .orange
+                )
+                diagnosticMetric(
+                    title: "系统权限",
+                    value: "\(permissionCount)/2",
+                    symbol: "checkmark.shield.fill",
+                    color: permissionCount == 2 ? .green : .orange
+                )
+                diagnosticMetric(
+                    title: "最近客户端",
+                    value: "\(recentClients.count)",
+                    symbol: "cable.connector.horizontal",
+                    color: .blue
+                )
+                diagnosticMetric(
+                    title: "活动画面",
+                    value: "\(model.session.frames.count)/\(model.session.targets.count)",
+                    symbol: "rectangle.on.rectangle.angled",
+                    color: model.session.errors.isEmpty ? .blue : .orange
+                )
+            }
+
             SettingsCard {
-                VStack(spacing: 14) {
-                    StatusRow(symbol: "server.rack", title: "本地服务", detail: "127.0.0.1:8765", ready: model.serviceReady)
+                VStack(spacing: 16) {
+                    StatusRow(symbol: "server.rack", title: "本地服务", detail: "127.0.0.1:8765 · \(model.serviceDetail)", ready: model.serviceReady)
                     Divider()
-                    StatusRow(symbol: "network", title: "MCP 连接入口", detail: "/mcp", ready: true)
+                    StatusRow(symbol: "accessibility", title: "辅助功能", detail: "读取控件和执行操作", ready: model.permissions.accessibilityTrusted)
                     Divider()
-                    HStack { Text("最近刷新"); Spacer(); Text(model.lastRefreshed, style: .time).foregroundStyle(.secondary) }
+                    StatusRow(symbol: "rectangle.on.rectangle", title: "屏幕录制", detail: "读取目标窗口画面", ready: model.permissions.screenCaptureAllowed == true)
                 }
             }
+
+            HStack(alignment: .top, spacing: 14) {
+                SettingsCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("客户端活动").font(.headline)
+                        if recentClients.isEmpty {
+                            Label("最近 90 秒没有客户端活动", systemImage: "clock")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(recentClients, id: \.self) { client in
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                                    Text(client).fontWeight(.medium)
+                                    Spacer()
+                                    Text("已识别").font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        Divider()
+                        LabeledContent("最近事件", value: "\(model.recentEvents.count) 条")
+                    }
+                }
+
+                SettingsCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("实时画面").font(.headline)
+                        LabeledContent("当前状态", value: model.session.status)
+                        LabeledContent("活动窗口", value: "\(model.session.targets.count)")
+                        LabeledContent("已连接画面", value: "\(model.session.frames.count)")
+                        LabeledContent("画面错误", value: "\(model.session.errors.count)")
+                    }
+                }
+            }
+
+            SettingsCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("问题汇总").font(.headline)
+                        Spacer()
+                        Text(model.lastRefreshed, style: .time).font(.caption).foregroundStyle(.secondary)
+                    }
+                    if issues.isEmpty {
+                        Label("未发现需要处理的问题", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    } else {
+                        ForEach(issues, id: \.self) { issue in
+                            Label(issue, systemImage: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                }
+            }
+
+            SettingsCard {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: "hand.raised.fill").foregroundStyle(.blue).font(.title3)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("脱敏诊断").font(.headline)
+                        Text("复制和导出的内容只包含状态、数量和阶段，不包含截图、应用名称、窗口编号、界面正文或连接令牌。")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+            }
+
             HStack {
                 Button("刷新诊断") { model.refresh() }
-                Button("复制无内容诊断") {
-                    let value = "服务：运行中\n辅助功能：\(model.permissions.accessibilityTrusted ? "正常" : "未授权")\n屏幕录制：\(model.permissions.screenCaptureAllowed == true ? "正常" : "未授权")\n活动应用数：\(model.activeTargets.count)"
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(value, forType: .string)
+                Button("复制排错信息") { model.copyDiagnosticSummary() }
+                Button("导出诊断报告…") { model.exportDiagnosticReport() }
+                if let feedback = model.diagnosticsFeedback {
+                    Label(feedback, systemImage: feedback.contains("失败") ? "xmark.circle.fill" : "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(feedback.contains("失败") ? .red : .green)
                 }
                 Spacer()
+            }
+        }
+    }
+
+    private var permissionCount: Int {
+        (model.permissions.accessibilityTrusted ? 1 : 0) + (model.permissions.screenCaptureAllowed == true ? 1 : 0)
+    }
+
+    private var recentClients: [String] {
+        Array(Set(model.recentEvents.compactMap(\.source))).sorted()
+    }
+
+    private var issues: [String] {
+        var result: [String] = []
+        if !model.serviceReady { result.append("本地服务无法连接") }
+        if !model.permissions.accessibilityTrusted { result.append("辅助功能未授权") }
+        if model.permissions.screenCaptureAllowed != true { result.append("屏幕录制未授权") }
+        if !model.session.errors.isEmpty { result.append("有 \(model.session.errors.count) 个窗口画面读取失败") }
+        return result
+    }
+
+    private func diagnosticMetric(title: String, value: String, symbol: String, color: Color) -> some View {
+        SettingsCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Image(systemName: symbol).font(.title2).foregroundStyle(color)
+                Text(value).font(.title3.bold())
+                Text(title).font(.caption).foregroundStyle(.secondary)
             }
         }
     }

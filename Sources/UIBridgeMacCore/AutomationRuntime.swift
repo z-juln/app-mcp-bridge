@@ -31,6 +31,13 @@ public final class AutomationRuntime: @unchecked Sendable {
         guard let app = AppDiscovery.listRunningApplications().first(where: { $0.pid == pid }) else {
             throw BridgeError(code: .appNotFound, message: "No running application has pid \(pid).", retryable: true)
         }
+        guard app.appID != "com.juln.app-mcp-bridge" else {
+            throw BridgeError(
+                code: .invalidRequest,
+                message: "App MCP Bridge cannot automate its own application process.",
+                suggestedAction: "Choose the external application that should be inspected or operated."
+            )
+        }
         guard AppAccessPolicyStore.load().allows(appID: app.appID) else {
             throw BridgeError(
                 code: .invalidRequest,

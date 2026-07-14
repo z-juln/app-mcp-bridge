@@ -70,10 +70,20 @@
 - 证据：ui:TARGET:App MCP Bridge 实时操控页:real preview, two client routes and events visible together
 - 证据：command:TARGET:pgrep preview-stream:two apps active, zero after leaving page
 
+### 2026-07-14 16:10 - 调试与诊断完成
+
+- 做了什么：诊断页接入真实服务记录、系统权限、最近客户端、实时画面状态和问题汇总；增加复制排错摘要、保存面板导出脱敏 JSON 报告和成功反馈。报告只保留状态、数量和阶段，明确排除截图、应用名称、窗口编号、界面正文和凭据。补充本机网络声明，并禁止 Bridge 把自身作为自动化目标。
+- 验证结果：安装版诊断页显示服务正常、权限 2/2、问题汇总无异常；复制按钮通过真实外部点击，摘要内容和成功反馈正确，原剪贴板已恢复；导出按钮通过系统保存面板生成 778 字节有效报告，隐私字段全部为 false，敏感字段搜索为空，临时文件已删除。测试前台最终恢复为 Google Chrome。
+- 下一步：完成危险操作二次确认的安装版回归和任务最终审查。
+- 证据：command:TARGET:app-mcp-bridge diagnostic-report:JSON schema and privacy assertions passed
+- 证据：ui:TARGET:App MCP Bridge 调试与诊断页:service, permissions, clients, preview, issues and privacy notice visible
+- 证据：ui:TARGET:复制排错信息:success feedback and redacted clipboard content passed
+- 证据：ui:TARGET:导出诊断报告:save panel, JSON validation and cleanup passed
+
 ## 残余
 
 - 实时画面主链路已完成安装版验收。
-- 诊断导出和任务最终审查仍待完成。
+- 诊断导出已完成；危险操作回归和任务最终审查仍待完成。
 
 ## 协调者交接
 

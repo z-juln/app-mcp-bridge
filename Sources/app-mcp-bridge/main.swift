@@ -96,6 +96,23 @@ enum UIBridgeCommand {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             print(String(decoding: try encoder.encode(PreviewDiagnosticCenter.recent()), as: UTF8.self))
+        case "diagnostic-report":
+            let report = DiagnosticReportBuilder.build(
+                serviceReady: ServiceStateStore().runningPID() != nil,
+                permissions: PermissionInspector.current(),
+                recentEvents: AutomationActivityCenter.recent(),
+                activeApplicationCount: 0,
+                previewStatus: "等待活动",
+                connectedPreviewCount: 0,
+                previewErrorCount: 0
+            )
+            let data = try DiagnosticReportBuilder.encoded(report)
+            if arguments.indices.contains(1) {
+                try data.write(to: URL(fileURLWithPath: arguments[1]), options: .atomic)
+                print(arguments[1])
+            } else {
+                print(String(decoding: data, as: UTF8.self))
+            }
         case "start":
             let port = parsePort(arguments) ?? 8765
             let state = ServiceStateStore()
@@ -127,7 +144,7 @@ enum UIBridgeCommand {
                 print("not running")
             }
         default:
-            print("app-mcp-bridge <start|stop|serve|mcp|call|show|status|permissions|token|version>")
+            print("app-mcp-bridge <start|stop|serve|mcp|call|show|status|permissions|token|version|diagnostic-report>")
         }
     }
 
