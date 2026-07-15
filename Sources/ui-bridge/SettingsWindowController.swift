@@ -22,6 +22,8 @@ final class BridgeSettingsModel: NSObject, ObservableObject {
     @Published var pendingDangerousRequest: DangerousActionConfirmationRequest?
     @Published var runningApps = AppDiscovery.listRunningApplications()
     @Published var accessPolicy = AppAccessPolicyStore.load()
+    @Published var permissionRestartKinds: [String] = []
+    @Published var permissionRestartFeedback: String?
 
     let session: AutomationSessionCoordinator
     private let token: String
@@ -37,7 +39,13 @@ final class BridgeSettingsModel: NSObject, ObservableObject {
     var activeTargets: [ControlledTarget] { session.targets }
 
     func refresh(targets: [ControlledTarget]? = nil) {
-        permissions = PermissionInspector.current()
+        let currentPermissions = PermissionInspector.current()
+        let newlyGranted = PermissionRestartPolicy.newlyGranted(from: permissions, to: currentPermissions)
+        if !newlyGranted.isEmpty {
+            permissionRestartKinds = Array(Set(permissionRestartKinds + newlyGranted)).sorted()
+            permissionRestartFeedback = nil
+        }
+        permissions = currentPermissions
         if let targets { session.updateTargets(targets) }
         recentEvents = AutomationActivityCenter.recent()
         runningApps = AppDiscovery.listRunningApplications()
@@ -48,6 +56,31 @@ final class BridgeSettingsModel: NSObject, ObservableObject {
             selectedTargetPID = session.targets.first?.pid
         }
         lastRefreshed = Date()
+    }
+
+    func relaunchApplication() {
+        let applicationURL = Bundle.main.bundleURL
+        guard applicationURL.pathExtension == "app" else {
+            permissionRestartFeedback = "请退出当前开发版本后重新打开 UI Bridge"
+            return
+        }
+
+        let relauncher = Process()
+        relauncher.executableURL = URL(fileURLWithPath: "/bin/sh")
+        relauncher.arguments = [
+            "-c",
+            "sleep 0.5; /usr/bin/open \"$1\"",
+            "ui-bridge-relaunch",
+            applicationURL.path,
+        ]
+        relauncher.standardOutput = FileHandle.nullDevice
+        relauncher.standardError = FileHandle.nullDevice
+        do {
+            try relauncher.run()
+            NSApplication.shared.terminate(nil)
+        } catch {
+            permissionRestartFeedback = "无法自动重新打开，请退出后手动打开 UI Bridge"
+        }
     }
 
     func copyDiagnosticSummary() {

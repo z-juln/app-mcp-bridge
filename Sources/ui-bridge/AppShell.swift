@@ -67,6 +67,7 @@ final class AppShell: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
+        settingsModel.refresh(targets: overlayController.activeTargets)
         guard canOpenOnActivation, settingsController.window?.isVisible != true else { return }
         showSettings()
     }

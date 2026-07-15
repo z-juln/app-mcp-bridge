@@ -458,6 +458,25 @@ private struct PermissionSettingsView: View {
                     StatusRow(symbol: "rectangle.on.rectangle", title: "屏幕录制", detail: "读取目标窗口画面，不录制系统音频", ready: model.permissions.screenCaptureAllowed == true)
                 }
             }
+            if !model.permissionRestartKinds.isEmpty {
+                SettingsCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("权限已开启，建议重新打开 UI Bridge", systemImage: "arrow.clockwise.circle.fill")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                        Text("刚刚开启了\(model.permissionRestartKinds.joined(separator: "、"))权限。macOS 有时不会主动提示重新打开，重开后可确保权限完整生效。")
+                            .foregroundStyle(.secondary)
+                        HStack {
+                            Button("重新打开 UI Bridge") { model.relaunchApplication() }
+                                .buttonStyle(.borderedProminent)
+                            if let feedback = model.permissionRestartFeedback {
+                                Text(feedback).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
             HStack {
                 Button("重新检查") { model.refresh() }
                 Button("打开系统设置") {

@@ -20,3 +20,16 @@ public enum PermissionInspector {
         )
     }
 }
+
+public enum PermissionRestartPolicy {
+    public static func newlyGranted(from previous: PermissionStatus, to current: PermissionStatus) -> [String] {
+        var result: [String] = []
+        if !previous.accessibilityTrusted && current.accessibilityTrusted {
+            result.append("辅助功能")
+        }
+        if previous.screenCaptureAllowed == false && current.screenCaptureAllowed == true {
+            result.append("屏幕录制")
+        }
+        return result
+    }
+}

@@ -118,6 +118,15 @@
 - 证据：document:TARGET:skills/macos-ui-control/SKILL.md:independent launch and automatic experience rules recorded
 - 证据：document:TARGET:docs/06-experience-library-plan.md:no manual teaching or Agent experience mutation
 
+### 2026-07-15 20:35 - 授权后自动复查与重开提醒
+
+- 做了什么：从系统设置返回 UI Bridge 时自动复查权限；发现辅助功能或屏幕录制刚刚开启后，在权限页显示明确的重开说明和“重新打开 UI Bridge”按钮，不再依赖 macOS 自己弹出提醒。
+- 验证结果：权限变化判断的有变化、无变化两种情况均通过；安装版权限页能读到完整提示和按钮，实际点击后旧进程退出且新进程成功启动；临时验收状态已移除。
+- 下一步：继续执行任务最终审查和安装版综合回归。
+- 证据：command:TARGET:swift run core-self-test:permission transition checks passed
+- 证据：ui:TARGET:UI Bridge 系统权限页:post-grant explanation and relaunch button visible
+- 证据：command:TARGET:relaunch interaction:old pid replaced by new pid
+
 ## 残余
 
 - 实时画面主链路已完成安装版验收。
