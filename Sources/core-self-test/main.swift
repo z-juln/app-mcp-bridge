@@ -33,20 +33,6 @@ do {
         PermissionGuidance.missingKinds(for: PermissionStatus(accessibilityTrusted: true, screenCaptureAllowed: true)).isEmpty,
         "Permission guidance reported missing permissions for an authorized process"
     )
-    try expect(
-        PermissionRestartPolicy.newlyGranted(
-            from: PermissionStatus(accessibilityTrusted: false, screenCaptureAllowed: false),
-            to: PermissionStatus(accessibilityTrusted: true, screenCaptureAllowed: true)
-        ) == ["辅助功能", "屏幕录制"],
-        "Permission restart policy did not identify newly granted permissions"
-    )
-    try expect(
-        PermissionRestartPolicy.newlyGranted(
-            from: PermissionStatus(accessibilityTrusted: true, screenCaptureAllowed: true),
-            to: PermissionStatus(accessibilityTrusted: true, screenCaptureAllowed: true)
-        ).isEmpty,
-        "Permission restart policy requested a restart without a permission change"
-    )
     var elementCount = 0
     var quality = "not-tested"
     var scopedElementCount = 0

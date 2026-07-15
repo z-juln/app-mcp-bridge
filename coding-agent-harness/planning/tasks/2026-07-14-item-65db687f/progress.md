@@ -127,6 +127,14 @@
 - 证据：ui:TARGET:UI Bridge 系统权限页:post-grant explanation and relaunch button visible
 - 证据：command:TARGET:relaunch interaction:old pid replaced by new pid
 
+### 2026-07-15 21:05 - 权限入口按项拆分
+
+- 做了什么：撤销授权变化自动判断和条件式重开卡片；辅助功能、屏幕录制各自提供对应的“打开系统设置”按钮；移除重新检查按钮，底部常驻授权后需要重启的说明。
+- 验证结果：安装版页面排版正常，两个入口分别打开系统设置的“辅助功能”和“录屏与系统录音”页面；页面不存在重新检查按钮，底部说明始终可见。
+- 下一步：继续执行任务最终审查和安装版综合回归。
+- 证据：ui:TARGET:UI Bridge 系统权限页:two per-permission buttons and persistent restart notice visible
+- 证据：ui:TARGET:System Settings:accessibility and screen recording panes opened from their matching rows
+
 ## 残余
 
 - 实时画面主链路已完成安装版验收。

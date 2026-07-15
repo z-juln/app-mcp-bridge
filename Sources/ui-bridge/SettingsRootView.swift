@@ -103,6 +103,7 @@ private struct StatusRow: View {
     let title: String
     let detail: String
     let ready: Bool
+    var settingsURL: URL? = nil
 
     var body: some View {
         HStack(spacing: 13) {
@@ -120,6 +121,11 @@ private struct StatusRow: View {
                 .foregroundStyle(ready ? .green : .orange)
                 .padding(.horizontal, 9).padding(.vertical, 5)
                 .background((ready ? Color.green : Color.orange).opacity(0.1), in: Capsule())
+            if let settingsURL {
+                Button("打开系统设置") {
+                    NSWorkspace.shared.open(settingsURL)
+                }
+            }
         }
     }
 }
@@ -453,37 +459,26 @@ private struct PermissionSettingsView: View {
         PageContainer(title: "系统权限", subtitle: "Bridge 只会申请完成应用读取和操作所需的系统权限。") {
             SettingsCard {
                 VStack(spacing: 16) {
-                    StatusRow(symbol: "accessibility", title: "辅助功能", detail: "控制应用控件", ready: model.permissions.accessibilityTrusted)
+                    StatusRow(
+                        symbol: "accessibility",
+                        title: "辅助功能",
+                        detail: "控制应用控件",
+                        ready: model.permissions.accessibilityTrusted,
+                        settingsURL: URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+                    )
                     Divider()
-                    StatusRow(symbol: "rectangle.on.rectangle", title: "屏幕录制", detail: "读取目标窗口画面，不录制系统音频", ready: model.permissions.screenCaptureAllowed == true)
+                    StatusRow(
+                        symbol: "rectangle.on.rectangle",
+                        title: "屏幕录制",
+                        detail: "读取目标窗口画面，不录制系统音频",
+                        ready: model.permissions.screenCaptureAllowed == true,
+                        settingsURL: URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
+                    )
                 }
             }
-            if !model.permissionRestartKinds.isEmpty {
-                SettingsCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Label("权限已开启，建议重新打开 UI Bridge", systemImage: "arrow.clockwise.circle.fill")
-                            .font(.headline)
-                            .foregroundStyle(.orange)
-                        Text("刚刚开启了\(model.permissionRestartKinds.joined(separator: "、"))权限。macOS 有时不会主动提示重新打开，重开后可确保权限完整生效。")
-                            .foregroundStyle(.secondary)
-                        HStack {
-                            Button("重新打开 UI Bridge") { model.relaunchApplication() }
-                                .buttonStyle(.borderedProminent)
-                            if let feedback = model.permissionRestartFeedback {
-                                Text(feedback).font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            HStack {
-                Button("重新检查") { model.refresh() }
-                Button("打开系统设置") {
-                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
-                }
-                Spacer()
-            }
+            Label("系统授权后，需要重启 UI Bridge 才能生效。", systemImage: "info.circle.fill")
+                .font(.callout)
+                .foregroundStyle(.secondary)
         }
     }
 }
