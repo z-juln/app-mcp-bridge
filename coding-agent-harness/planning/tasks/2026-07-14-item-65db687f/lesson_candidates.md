@@ -7,14 +7,14 @@
 | Field | Value |
 | --- | --- |
 | Schema version | lesson-candidate-v1 |
-| Task-level status | pending-review |
+| Task-level status | no-candidate-accepted |
 | Review gate | candidate-file-present |
-| Review decision | pending-human-review |
+| Review decision | no reusable candidate; project-specific decisions are documented locally |
 | Promotion state | not-promoted |
-| Closeout token | pending |
+| Closeout token | checked-none |
 | Source task | 2026-07-14-item-65db687f |
 | Owner | coordinator |
-| Last updated | 2026-07-14 |
+| Last updated | 2026-07-15 |
 
 ## Schema
 
@@ -49,7 +49,8 @@
 
 ## No-Candidate Reason
 
-尚未判定。只有人工审查接受本任务没有可复用候选时，才填写这里。
+本任务的可复用结论已经直接写入 UI Bridge 的产品、协议、验证和开发文档；没有需要
+跨项目推广的独立规范或经验候选。
 
 ## Promotion Notes
 

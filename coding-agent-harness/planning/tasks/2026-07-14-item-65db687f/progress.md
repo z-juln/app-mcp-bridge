@@ -1,6 +1,9 @@
 # 实现完整设置与实时调试界面 - 进度
 
-## 状态：进行中
+## 状态：已完成
+
+下面各条“下一步”记录的是当时切片的历史状态，后续条目已经取代早期结论；当前事实以
+本页最后一条记录和“残余”为准。
 
 ## 进度记录
 
@@ -135,10 +138,19 @@
 - 证据：ui:TARGET:UI Bridge 系统权限页:two per-permission buttons and persistent restart notice visible
 - 证据：ui:TARGET:System Settings:accessibility and screen recording panes opened from their matching rows
 
+### 2026-07-15 22:00 - 文档、审查与任务收口
+
+- 做了什么：统一 README、产品、协议、交付、状态和本地使用文档；明确 Skill 安装采用通用教学按钮和复制提示词，不绑定指定 Agent、不由 MCP 安装、不猜测安装状态。清理当前任务首页、阶段图、审查和 walkthrough 的过时状态与占位内容。
+- 验证结果：安装版正在运行，辅助功能和屏幕录制均已授权；Swift 构建、协议 4 项、核心真实窗口、安全 7 项和 10 个 MCP 工具 Skill 自检通过；9 份入口文档的本地链接全部有效，当前文档中无旧产品名。
+- 下一步：Skill 随 App 打包和教学按钮、Web Bridge、经验库分别建立后续任务。
+- 证据：command:TARGET:/Applications/UI Bridge.app status and permissions:running, accessibility=true, screenCapture=true
+- 证据：command:TARGET:swift build + protocol/core/safety/skill self-tests:passed
+- 证据：command:TARGET:markdown link and current-name audit:9 files checked, 0 missing, 0 legacy names
+
 ## 残余
 
-- 实时画面主链路已完成安装版验收。
-- 诊断导出、危险操作回归和 UI Bridge 全面更名已完成；新系统身份的辅助功能授权与任务最终审查仍待完成。
+- 本任务范围内无阻塞残余。
+- Skill 教学按钮、Web Bridge、经验库、Windows 和正式发布渠道均为后续独立范围。
 
 ## 协调者交接
 

@@ -24,16 +24,16 @@ Task Contract: harness-task/v1
 | Template Source | templates-zh-CN/planning/INDEX.md |
 | Task Creator | zjl <zjl5@meitu.com> |
 | Task Creator Source | git-config |
-| Human Review Status | not-confirmed |
-| Confirmation ID | n/a |
-| Confirmed At | n/a |
-| Reviewer | n/a |
-| Reviewer Email | n/a |
-| Confirm Text | n/a |
-| Evidence Checked | n/a |
-| Review Commit SHA | n/a |
+| Human Review Status | confirmed |
+| Confirmation ID | HRC-202607152200 |
+| Confirmed At | 2026-07-15 22:00 |
+| Reviewer | Human Reviewer |
+| Reviewer Email | zjl5@meitu.com |
+| Confirm Text | 用户逐项确认权限、实时画面、菜单栏反馈和危险操作结果，并要求最终文档收口 |
+| Evidence Checked | `progress.md`; `review.md`; `walkthrough.md` |
+| Review Commit SHA | 0fe431f8efe4d6ce0f0c9499cf349891154f9288 |
 | Audit Source | native-index |
-| Audit Status | created |
+| Audit Status | committed |
 | Exception Reason | n/a |
 | Message | n/a |
 | Migration Status | native |

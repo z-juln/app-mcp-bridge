@@ -7,7 +7,7 @@
 | Role | Status | Permission | Authorized By | Authorized At | Scope | Worktree / Branch | Reuse |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | reviewer subagent | allowed by default | read-only | harness task policy | task creation | current task review | n/a | allowed within this task |
-| worker subagent | not authorized | write only after user approval | pending | pending | pending | pending | allowed only within approved task/scope |
+| worker subagent | not authorized | none | task contract | task creation | n/a | n/a | no |
 
 ## Subagent Delegation Decision
 

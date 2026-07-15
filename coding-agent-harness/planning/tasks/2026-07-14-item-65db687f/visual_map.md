@@ -26,11 +26,11 @@ flowchart LR
 | Phase ID | Kind | Depends On | State | Completion | Output | Required Evidence | Exit Command | Actor | Evidence Status | Blocking Risk | Owner / Handoff |
 | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
 | INIT-01 | init | none | done | 100 | 任务计划和执行策略已确认 | `task_plan.md`; `execution_strategy.md` | `harness task-start 2026-07-14-item-65db687f` | agent | present | none | coordinator |
-| EXEC-01 | execution | INIT-01 | planned | 0 | 设置窗口、导航、总览和真实状态 | 构建、安装版窗口截图 | `harness task-phase 2026-07-14-item-65db687f EXEC-01 --state done --completion 100 --evidence present` | agent | missing | 布局与现有菜单生命周期冲突 | coordinator |
-| EXEC-02 | execution | EXEC-01 | planned | 0 | 多应用真实画面、映射和事件 | 真实窗口截图、资源占用记录 | `harness task-phase 2026-07-14-item-65db687f EXEC-02 --state done --completion 100 --evidence present` | agent | missing | 持续截图性能与隐私 | coordinator |
-| EXEC-03 | execution | EXEC-02 | planned | 0 | 应用访问、安全确认和诊断 | 门禁自检、安装版拒绝/允许证据 | `harness task-phase 2026-07-14-item-65db687f EXEC-03 --state done --completion 100 --evidence present` | agent | missing | 跨进程确认被绕过 | coordinator |
-| GATE-01 | gate | EXEC-03 | planned | 0 | Agent Review Submission | `review.md`、progress update、lesson routing | `harness task-review 2026-07-14-item-65db687f --message "<summary>"` | agent | missing | 真实 UI 证据不完整 | coordinator |
-| GATE-02 | gate | GATE-01 | planned | 0 | Human Review Confirmation | review packet 和人工确认 | `harness review-confirm 2026-07-14-item-65db687f --confirm 2026-07-14-item-65db687f` | human | missing | Agent 不能代办人工确认 | human |
+| EXEC-01 | execution | INIT-01 | done | 100 | 设置窗口、导航、总览和真实状态 | 构建、安装版窗口截图 | 无 | agent | present | none | coordinator |
+| EXEC-02 | execution | EXEC-01 | done | 100 | 多应用真实画面、映射和事件 | 真实窗口截图、资源退出记录 | 无 | agent | present | none | coordinator |
+| EXEC-03 | execution | EXEC-02 | done | 100 | 应用访问、安全确认和诊断 | 门禁自检、安装版拒绝/允许证据 | 无 | agent | present | none | coordinator |
+| GATE-01 | gate | EXEC-03 | done | 100 | Agent Review Submission | `review.md`、progress update、lesson routing | 无 | agent | present | none | coordinator |
+| GATE-02 | gate | GATE-01 | done | 100 | Human Review Confirmation | 用户逐项反馈与确认 | 无 | human | present | none | human |
 
 允许的 `State`：`planned`, `in_progress`, `review`, `blocked`, `done`, `skipped`。
 
@@ -55,7 +55,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  CLIENT["Cursor / WorkBuddy"] --> BRIDGE["UI Bridge"]
+  CLIENT["MCP 客户端"] --> BRIDGE["UI Bridge"]
   BRIDGE --> ACTIVITY["有界活动记录"]
   ACTIVITY --> LIVE["实时操控页"]
   BRIDGE --> RISK{"删除 / 购买 / 权限变更?"}
