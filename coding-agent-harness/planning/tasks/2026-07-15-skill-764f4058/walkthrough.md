@@ -2,46 +2,50 @@
 
 ## 摘要
 
-待收口。
+现有通用 Skill 已随 UI Bridge.app 打包。连接页提供 Agent 中立的教学按钮，用户可以
+预览并复制安装提示词，再交给当前 Agent 安装。
 
 ## 范围
 
 | 范围 | 详情 |
 | --- | --- |
-| 变更模块 | pending |
-| 新增文件 | pending |
-| 删除文件 | pending |
-| 不在范围内 | pending |
+| 变更模块 | App 构建资源、连接页、安装提示词、产品和使用文档 |
+| 新增文件 | 无；复用现有 Skill |
+| 删除文件 | 无 |
+| 不在范围内 | 自动安装、客户端识别、Skill 状态检测、Web 和经验库能力 |
 
 ## 验证
 
 | 检查 | 命令或过程 | 结果 | 证据 |
 | --- | --- | --- | --- |
-| pending | pending | not run | pending |
+| App 资源 | 比较仓库与安装包 Skill 目录 | 4 个文件完全一致 | `progress.md` |
+| 安装版界面 | 后台打开连接页并操作弹窗 | 入口、说明、复制反馈正常 | `progress.md` |
+| 提示词 | 检查剪贴板内容 | 路径真实、无令牌、恢复规则正确 | `progress.md` |
+| 用户影响 | 操作后读取前台应用 | 最终仍为用户正在使用的 Figma，测试窗口已收起 | `progress.md` |
 
 ## 审查结论
 
 | 来源 | 重要发现 | 处理 | 证据 |
 | --- | --- | --- | --- |
-| pending | pending | pending | `review.md` |
+| coordinator 自检 | 0 | 无阻塞项 | `progress.md` |
 
 ## 残余风险
 
 | 风险 | Owner | 是否接受 | 跟进 |
 | --- | --- | --- | --- |
-| pending | owner | pending | pending |
+| 不同 Agent 的安装规范不同 | project | 是 | 由 Agent 自行判断；不支持时明确报告 |
 
 ## 经验沉淀反思
 
 | 问题 | 答案 |
 | --- | --- |
-| 是否完成经验候选检查？ | pending |
-| 经验候选详情文件 | `lesson_candidates.md` |
+| 是否完成经验候选检查？ | 简单任务无独立候选 |
+| 经验候选详情文件 | 不适用 |
 
 ## 收口链接
 
 | 产物 | 链接 |
 | --- | --- |
 | 任务计划 | `task_plan.md` |
-| 审查记录 | `review.md` |
+| 审查记录 | 不适用 |
 | 进度记录 | `progress.md` |

@@ -52,8 +52,8 @@ swift build
 
 安装完成后打开 `/Applications/UI Bridge.app`，按提示授予辅助功能和屏幕录制权限。
 在菜单栏选择“复制 MCP 连接配置”，即可把本机服务接入支持 MCP 的客户端。仓库同时提供
-通用 Skill；当前源码版由用户把安装提示词交给自己的 Agent 完成安装，不由 MCP 静默修改
-客户端。App 内统一的“安装 Agent Skill”教学按钮属于下一步，当前版本不检测 Skill 是否安装。
+通用 Skill；在设置的“连接”页点击“安装 Agent Skill”，复制提示词并交给自己的 Agent
+完成安装。UI Bridge 不由 MCP 静默修改客户端，也不猜测 Skill 是否安装。
 
 开发自检：
 
@@ -80,8 +80,6 @@ python3 skills/macos-ui-control/scripts/self_test.py
 - 内嵌 Chromium 浏览器和现有 Chrome 连接。
 - 与 Codex 一致的 Chrome 用户、密码和 Cookie 本地导入体验。
 - 自动沉淀、验证、更新和淘汰原生 App、网页共用的操作经验。
-- 通用“安装 Agent Skill”教学入口：复制自包含提示词，让 Agent 按自身客户端能力安装；
-  不绑定指定 Agent，也不猜测安装状态。
 - Windows 原生应用支持。
 - 正式签名、公证、安装包、自动更新和公开发布渠道。
 

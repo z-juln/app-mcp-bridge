@@ -12,6 +12,8 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$ROOT/.build/release/ui-bridge" "$APP/Contents/MacOS/ui-bridge"
 cp "$ROOT/Resources/App-Info.plist" "$APP/Contents/Info.plist"
 swift "$ROOT/scripts/generate-app-icon.swift" "$APP/Contents/Resources/AppIcon.icns"
+mkdir -p "$APP/Contents/Resources/skills"
+ditto "$ROOT/skills/macos-ui-control" "$APP/Contents/Resources/skills/macos-ui-control"
 
 signing=(${(f)"$($ROOT/scripts/ensure-local-signing-identity.sh)"})
 keychain=${signing[1]}

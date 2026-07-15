@@ -486,9 +486,10 @@ private struct PermissionSettingsView: View {
 private struct ConnectionSettingsView: View {
     @ObservedObject var model: BridgeSettingsModel
     @State private var copied = false
+    @State private var showingSkillGuide = false
 
     var body: some View {
-        PageContainer(title: "连接", subtitle: "让 Cursor、WorkBuddy 或其他 Agent 连接本机 Bridge。") {
+        PageContainer(title: "连接", subtitle: "让支持 MCP 的 Agent 连接本机 Bridge。") {
             SettingsCard {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack { Text("本地 MCP 地址").font(.headline); Spacer(); Text("已启用").foregroundStyle(.green) }
@@ -504,12 +505,124 @@ private struct ConnectionSettingsView: View {
             }
             SettingsCard {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("已验证客户端").font(.headline)
-                    Label("Cursor · 本机程序连接", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                    Label("WorkBuddy · 本地地址连接", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                    Text("兼容客户端").font(.headline)
+                    Label("支持本地 MCP 地址的 Agent", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                    Text("客户端连接成功后，它的真实名称会自动出现在“实时操控”页。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            SettingsCard {
+                HStack(alignment: .center, spacing: 14) {
+                    Image(systemName: "puzzlepiece.extension.fill")
+                        .font(.title2)
+                        .foregroundStyle(.blue)
+                        .frame(width: 32)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Agent Skill").font(.headline)
+                        Text("复制安装提示词，交给你正在使用的 Agent。UI Bridge 不会修改客户端，也不检测安装状态。")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button("安装 Agent Skill…") {
+                        showingSkillGuide = true
+                    }
                 }
             }
         }
+        .sheet(isPresented: $showingSkillGuide) {
+            AgentSkillInstallationGuide()
+        }
+    }
+}
+
+private struct AgentSkillInstallationGuide: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var copied = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: "puzzlepiece.extension.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(.blue)
+                    .frame(width: 40, height: 40)
+                    .background(Color.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("安装 Agent Skill").font(.title2.bold())
+                    Text("UI Bridge 不会直接修改 Agent。复制下面的提示词，再发送给你正在使用的 Agent。")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                instruction(number: 1, text: "复制安装提示词")
+                instruction(number: 2, text: "发送给当前 Agent，并按它的提示批准文件安装")
+                instruction(number: 3, text: "等待 Agent 报告安装位置和检查结果")
+            }
+
+            ScrollView {
+                Text(AgentSkillInstaller.prompt)
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+            }
+            .frame(maxHeight: 210)
+            .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(.separator.opacity(0.7)))
+
+            HStack {
+                Text("Skill 由 Agent 管理，UI Bridge 不显示猜测性的安装状态。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("关闭") { dismiss() }
+                Button(copied ? "已复制" : "复制安装提示词") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(AgentSkillInstaller.prompt, forType: .string)
+                    copied = true
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(26)
+        .frame(width: 660, height: 500)
+    }
+
+    private func instruction(number: Int, text: String) -> some View {
+        HStack(spacing: 10) {
+            Text("\(number)")
+                .font(.caption.bold())
+                .frame(width: 22, height: 22)
+                .background(Color.secondary.opacity(0.12), in: Circle())
+            Text(text)
+        }
+    }
+}
+
+private enum AgentSkillInstaller {
+    static var installedSourcePath: String {
+        Bundle.main.resourceURL?
+            .appendingPathComponent("skills/macos-ui-control", isDirectory: true)
+            .path ?? "/Applications/UI Bridge.app/Contents/Resources/skills/macos-ui-control"
+    }
+
+    static var prompt: String {
+        """
+        请安装 UI Bridge 提供的 Agent Skill。
+
+        Skill 源目录：\(installedSourcePath)
+
+        要求：
+        1. 先确认源目录存在，并根据你当前客户端支持的方式选择 Skill 安装位置；如果客户端不支持 Agent Skill，请直接说明，不要改用其他机制伪装安装成功。
+        2. 复制整个 macos-ui-control 目录，不要覆盖或修改其他 Skill；如果已有同名版本，先做可恢复备份再更新。
+        3. 安装后重新读取目标目录中的 SKILL.md，确认 name 为 macos-ui-control，并报告最终安装位置和检查结果。
+        4. 不要读取、输出或修改 UI Bridge 的本机令牌，也不要在安装过程中执行任何界面操作。
+        5. 如果 ui-bridge MCP 连接不上，只能用 open -g "/Applications/UI Bridge.app" 将 App 作为独立应用打开，等待 http://127.0.0.1:8765/health 可用后重连一次。
+        6. 禁止通过子进程、swift run、serve、start、mcp、nohup 或 shell 后台任务启动 UI Bridge，也不要静默切换成 stdio。
+        """
     }
 }
 

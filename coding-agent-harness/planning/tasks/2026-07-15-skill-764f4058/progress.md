@@ -1,6 +1,6 @@
 # 实现通用 Skill 安装教学入口 - 进度
 
-## 状态：未开始
+## 状态：已完成
 
 `## 状态` 是受控机器字段，只能使用以下值之一：
 
@@ -22,20 +22,29 @@
 
 证据较长或数量较多时，不要粘贴全文；放入 `artifacts/INDEX.md` 并在这里引用 ID。
 
-### [YYYY-MM-DD HH:MM] - [阶段名称]
+### 2026-07-15 22:20 - 任务开始
 
-- 做了什么：[具体操作]
-- 验证结果：[运行了什么检查，结果如何]
-- 下一步：[下一步动作]
-- 证据：[type:path:summary]
+- 做了什么：确认第一版只打包现有 Skill，并提供通用教学弹窗和复制提示词。
+- 验证结果：当前 App Resources 只有图标，尚未包含 Skill；连接页只有地址和已验证客户端静态信息。
+- 下一步：实现资源打包和教学入口。
+- 证据：command:TARGET:/Applications/UI Bridge.app/Contents/Resources:only AppIcon.icns before implementation
+
+### 2026-07-15 22:45 - 第一版 Skill 教学入口完成
+
+- 做了什么：将现有 Skill 完整打包进 App；连接页新增通用教学卡片和说明弹窗；提示词要求 Agent 按自身规则安装、备份旧版本、核对名称，并严格禁止子进程恢复 App。
+- 验证结果：Debug/Release 构建和安装通过；安装包 4 个 Skill 文件与仓库完全一致；安装版后台打开连接页，教学按钮、弹窗、提示词和“已复制”反馈可见；剪贴板提示词引用真实目录、不含令牌；两轮测试均未抢前台，最终前台保持 Figma，窗口已收起。
+- 下一步：随 Web 和经验库等新能力逐步扩展 Skill 内容，不在本任务加入自动安装或状态检测。
+- 证据：command:TARGET:diff -rq skills/macos-ui-control /Applications/UI Bridge.app/.../macos-ui-control:identical, 4 files
+- 证据：ui:TARGET:UI Bridge 连接页:Agent Skill card, guide sheet and copied feedback passed
+- 证据：command:TARGET:clipboard assertions:real source path, independent launch rule, no Bearer token
 
 ## 残余
 
-- [遗留问题；如无写“无”]
+- 无阻塞残余。首版有意不自动安装、不检测安装状态、不扩展 Skill 内容。
 
 ## 协调者交接（Coordinator，启用模块并行时填写）
 
-- Global sync status：pending-coordinator-pass / synced / n/a
-- Registry update needed：[module key, step, status, branch, updated / 不适用]
-- Harness Ledger update needed：[task plan path, review path, closeout status / 不适用]
-- 负责人：coordinator / 不适用
+- Global sync status：n/a
+- Registry update needed：不适用
+- Harness Ledger update needed：任务收口时更新
+- 负责人：coordinator

@@ -310,21 +310,21 @@ skills/macos-ui-control/
 
 ### 安装交互
 
-当前 Skill 随仓库交付，App 尚未提供 Agent Skill 安装教学入口。后续连接页只提供一个通用的
+当前 Skill 同时随仓库和 App 交付。连接页提供一个通用的
 “安装 Agent Skill”教学按钮，不列出指定 Agent，也不把 Skill 安装和 MCP 连接捆绑成
 “一键接入”。按钮打开说明页并提供“复制安装提示词”：
 
 1. 用户把提示词发送给当前 Agent。
 2. 提示词指向 App 内随包提供的只读 Skill 源，并要求 Agent 按自己的宿主规范安装。
-3. Agent 安装前备份同名旧版本，安装后重新读取 `SKILL.md`、运行只读自检并报告位置、
-   版本和结果。
+3. Agent 安装前备份同名旧版本，安装后重新读取 `SKILL.md`，核对名称并报告位置和结果。
 4. 提示词明确禁止把 UI Bridge 作为子进程启动；连接失败时只能独立打开 App 后重连。
 
-首轮实现该按钮前，构建流程必须先把 Skill 复制到稳定的 App Resources 路径；不能在
-提示词中引用不存在的安装包路径。源码开发者仍可直接使用仓库中的
-`skills/macos-ui-control/`。
+构建流程把 Skill 复制到稳定的
+`/Applications/UI Bridge.app/Contents/Resources/skills/macos-ui-control`；源码开发者也可
+直接使用仓库中的 `skills/macos-ui-control/`。安装提示词不得包含本机令牌，也不在安装
+期间执行界面动作或启动临时 MCP 进程。
 
-UI Bridge 当前及首轮教学按钮均不检测 Skill 安装状态。跨客户端扫描文件只能证明某个
+UI Bridge 不检测 Skill 安装状态。跨客户端扫描文件只能证明某个
 路径存在，不能证明 Agent 已加载或正在遵守规则，因此界面只显示“Skill 由 Agent 管理”。
 未来仅在客户端主动上报可信的 Skill 标识和版本时展示状态，不能通过 MCP 调用行为猜测。
 
