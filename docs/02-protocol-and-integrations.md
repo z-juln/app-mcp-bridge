@@ -316,13 +316,14 @@ skills/macos-ui-control/
 
 1. 用户把提示词发送给当前 Agent。
 2. 提示词指向 App 内随包提供的只读 Skill 源，并要求 Agent 按自己的宿主规范安装。
-3. Agent 安装前备份同名旧版本，安装后重新读取 `SKILL.md`，核对名称并报告位置和结果。
-4. 提示词明确禁止把 UI Bridge 作为子进程启动；连接失败时只能独立打开 App 后重连。
+3. Agent 安装后重新读取 `SKILL.md`，并报告安装位置和结果。
 
 构建流程把 Skill 复制到稳定的
 `/Applications/UI Bridge.app/Contents/Resources/skills/macos-ui-control`；源码开发者也可
-直接使用仓库中的 `skills/macos-ui-control/`。安装提示词不得包含本机令牌，也不在安装
-期间执行界面动作或启动临时 MCP 进程。
+直接使用仓库中的 `skills/macos-ui-control/`。
+
+安装提示词只说明来源、安装动作和结果反馈。MCP 重连、独立启动 App、安全确认和操作
+顺序等运行规则全部保留在 `SKILL.md`，不在安装提示词中重复。
 
 UI Bridge 不检测 Skill 安装状态。跨客户端扫描文件只能证明某个
 路径存在，不能证明 Agent 已加载或正在遵守规则，因此界面只显示“Skill 由 Agent 管理”。

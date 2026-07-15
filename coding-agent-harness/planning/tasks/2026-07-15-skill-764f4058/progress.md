@@ -38,6 +38,15 @@
 - 证据：ui:TARGET:UI Bridge 连接页:Agent Skill card, guide sheet and copied feedback passed
 - 证据：command:TARGET:clipboard assertions:real source path, independent launch rule, no Bearer token
 
+### 2026-07-15 23:05 - 安装提示词职责收窄
+
+- 做了什么：根据用户反馈删除弹窗中的三步说明和六条运行要求；安装提示词只保留 Skill 来源、复制安装和结果反馈。运行期的连接恢复与安全规则继续由 `SKILL.md` 负责。
+- 验证结果：弹窗从 660×500 缩小为 620×330，内容无需滚动即可理解；安装版辅助功能树和截图均确认编号步骤已移除。复制内容缩短到 182 个字符，只包含来源、安装和结果，不含 MCP、子进程、令牌或“要求”列表；复制反馈正常，测试后前台保持 Google Chrome，窗口已收起。
+- 下一步：无；后续运行规则只维护在 `SKILL.md`。
+- 证据：diff:TARGET:Sources/ui-bridge/SettingsRootView.swift:installer prompt reduced to source, install and result only
+- 证据：ui:TARGET:UI Bridge compact skill guide:620x330 layout and copied feedback passed
+- 证据：command:TARGET:clipboard assertions:182 chars and no duplicated runtime rules
+
 ## 残余
 
 - 无阻塞残余。首版有意不自动安装、不检测安装状态、不扩展 Skill 内容。
